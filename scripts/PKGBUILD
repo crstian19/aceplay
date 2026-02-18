@@ -1,0 +1,32 @@
+# Maintainer: Crstian <me@crstian.me>
+pkgname=aceplay
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Play AceStream links with video players (mpv, vlc, etc.) - automatically starts acestream-engine"
+arch=('x86_64' 'aarch64')
+url="https://github.com/crstian/aceplay"
+license=('MIT')
+depends=('acestream-engine')
+optdepends=(
+    'mpv: recommended video player'
+    'vlc: alternative video player'
+    'ffmpeg: for ffplay'
+)
+makedepends=('go')
+conflicts=('acestream-launcher')
+replaces=('acestream-launcher')
+source=("aceplay::file://$PWD/../build/aceplay")
+sha256sums=('SKIP')
+
+build() {
+    return 0
+}
+
+check() {
+    return 0
+}
+
+package() {
+    install -Dm755 "$srcdir/aceplay" "$pkgdir/usr/bin/aceplay"
+    install -Dm644 "$srcdir/../../aceplay.desktop" "$pkgdir/usr/share/applications/aceplay.desktop"
+}
