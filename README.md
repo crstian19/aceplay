@@ -11,9 +11,6 @@
   <a href="https://github.com/crstian19/aceplay/actions/workflows/ci.yml">
     <img src="https://img.shields.io/github/actions/workflow/status/crstian19/aceplay/ci.yml?style=for-the-badge" alt="CI">
   </a>
-  <a href="https://goreportcard.com/report/github.com/crstian19/aceplay">
-    <img src="https://goreportcard.com/badge/github.com/crstian19/aceplay.svg" alt="Go Report">
-  </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/github/license/crstian19/aceplay?style=for-the-badge" alt="License">
   </a>
@@ -21,7 +18,7 @@
 
 ---
 
-> **Fun fact**: If you're Spanish, you can call aceplay "Herakleopolis" — that's what the ancient Egyptian city of Neni-Nesut was known as in Greek, the traditional enemy of Thebes. 🏛️
+> **Fun fact**: In Spain, we call aceplay "Herakleopolis" — Herakleopolis was the ancient Greek name for Neni-Nesut, the eternal enemy of Thebes. Just like Thebes (a.k.a. Tebas, the LaLiga president who keeps blocking legitimate streaming sites), we keep streaming anyway. 🏛️
 
 ---
 
