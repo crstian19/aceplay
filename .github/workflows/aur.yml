@@ -5,7 +5,7 @@ on:
     tags: [ 'v*' ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   aur-publish:
@@ -30,45 +30,52 @@ jobs:
       run: |
         go build -ldflags "-X main.version=${{ steps.extract_version.outputs.VERSION }}" -o aceplay ./cmd
 
+    - name: Configure Git
+      run: |
+        git config --global user.name "${{ secrets.AUR_USERNAME }}"
+        git config --global user.email "${{ secrets.AUR_EMAIL }}"
+
     - name: Prepare aceplay-bin files
       run: |
-        mkdir -p aur-aceplay-bin
-        cp scripts/PKGBUILD.bin aur-aceplay-bin/PKGBUILD
-        cp scripts/.SRCINFO.bin aur-aceplay-bin/.SRCINFO
-        cp scripts/aceplay.desktop aur-aceplay-bin/
-        cp scripts/LICENSE aur-aceplay-bin/
-        cp aceplay aur-aceplay-bin/aceplay
-        sed -i 's/pkgver=.*/pkgver=${{ steps.extract_version.outputs.VERSION }}/' aur-aceplay-bin/PKGBUILD
+        mkdir -p /tmp/aceplay-bin
+        cp scripts/PKGBUILD.bin /tmp/aceplay-bin/PKGBUILD
+        cp scripts/.SRCINFO.bin /tmp/aceplay-bin/.SRCINFO
+        cp scripts/aceplay.desktop /tmp/aceplay-bin/
+        cp scripts/LICENSE /tmp/aceplay-bin/
+        cp aceplay /tmp/aceplay-bin/aceplay
+        sed -i 's/pkgver=.*/pkgver=${{ steps.extract_version.outputs.VERSION }}/' /tmp/aceplay-bin/PKGBUILD
+
+    - name: Publish aceplay-bin to AUR
+      env:
+        AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
+      run: |
+        chmod 600 /tmp/aur_key
+        echo "$AUR_SSH_KEY" > /tmp/aur_key
+        chmod 600 /tmp/aur_key
+        git clone ssh://aur@aur.archlinux.org/aceplay-bin.git /tmp/aceplay-bin-repo
+        cd /tmp/aceplay-bin-repo
+        cp /tmp/aceplay-bin/* .
+        git add .
+        git commit -m "Update to v${{ steps.extract_version.outputs.VERSION }}"
+        GIT_SSH_COMMAND="ssh -i /tmp/aur_key -o StrictHostKeyChecking=no" git push origin master
 
     - name: Prepare aceplay files
       run: |
-        mkdir -p aur-aceplay
-        cp scripts/PKGBUILD aur-aceplay/PKGBUILD
-        cp scripts/aceplay.desktop aur-aceplay/
-        cp scripts/LICENSE aur-aceplay/
-        sed -i 's/pkgver=.*/pkgver=${{ steps.extract_version.outputs.VERSION }}/' aur-aceplay/PKGBUILD
-        # Download source for aceplay (compiles from source)
-        cd aur-aceplay
-        curl -sL "https://github.com/crstian19/aceplay/archive/v${{ steps.extract_version.outputs.VERSION }}.tar.gz" -o source.tar.gz
-
-    - name: Publish aceplay-bin to AUR
-      uses: ulises-jeremias/github-actions-aur-publish@v1
-      with:
-        pkgname: aceplay-bin
-        pkgbuild: ./aur-aceplay-bin/PKGBUILD
-        commit_username: ${{ secrets.AUR_USERNAME }}
-        commit_email: ${{ secrets.AUR_EMAIL }}
-        ssh_private_key: ${{ secrets.AUR_SSH_KEY }}
-        commit_message: "Update to v${{ steps.extract_version.outputs.VERSION }}"
-        ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
+        mkdir -p /tmp/aceplay
+        cp scripts/PKGBUILD /tmp/aceplay/PKGBUILD
+        cp scripts/aceplay.desktop /tmp/aceplay/
+        cp scripts/LICENSE /tmp/aceplay/
+        sed -i 's/pkgver=.*/pkgver=${{ steps.extract_version.outputs.VERSION }}/' /tmp/aceplay/PKGBUILD
 
     - name: Publish aceplay to AUR
-      uses: ulises-jeremias/github-actions-aur-publish@v1
-      with:
-        pkgname: aceplay
-        pkgbuild: ./aur-aceplay/PKGBUILD
-        commit_username: ${{ secrets.AUR_USERNAME }}
-        commit_email: ${{ secrets.AUR_EMAIL }}
-        ssh_private_key: ${{ secrets.AUR_SSH_KEY }}
-        commit_message: "Update to v${{ steps.extract_version.outputs.VERSION }}"
-        ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
+      env:
+        AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
+      run: |
+        echo "$AUR_SSH_KEY" > /tmp/aur_key
+        chmod 600 /tmp/aur_key
+        git clone ssh://aur@aur.archlinux.org/aceplay.git /tmp/aceplay-repo
+        cd /tmp/aceplay-repo
+        cp /tmp/aceplay/* .
+        git add .
+        git commit -m "Update to v${{ steps.extract_version.outputs.VERSION }}"
+        GIT_SSH_COMMAND="ssh -i /tmp/aur_key -o StrictHostKeyChecking=no" git push origin master
