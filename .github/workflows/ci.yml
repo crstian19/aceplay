@@ -42,7 +42,7 @@ jobs:
       uses: golangci/golangci-lint-action@v6
       with:
         version: latest
-        args: --timeout=5m --disable=staticcheck,errcheck
+        skip-cache: true
 
   build:
     name: Build
