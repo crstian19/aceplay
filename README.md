@@ -12,7 +12,7 @@
     <img src="https://img.shields.io/github/actions/workflow/status/crstian19/aceplay/ci.yml?style=for-the-badge" alt="CI">
   </a>
   <a href="https://goreportcard.com/report/github.com/crstian19/aceplay">
-    <img src="https://img.shields.io/goreportcard/g/github.com/crstian19/aceplay?style=for-the-badge" alt="Go Report">
+    <img src="https://goreportcard.com/badge/github.com/crstian19/aceplay.svg" alt="Go Report">
   </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/github/license/crstian19/aceplay?style=for-the-badge" alt="License">
