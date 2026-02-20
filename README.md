@@ -5,26 +5,23 @@
 <h1 align="center">Aceplay</h1>
 
 <p align="center">
-  <a href="https://github.com/crstian/aceplay/releases">
-    <img src="https://img.shields.io/github/v/release/crstian/aceplay?color=blue&logo=github&style=flat" alt="Release">
+  <a href="https://github.com/crstian19/aceplay/releases">
+    <img src="https://img.shields.io/github/v/release/crstian19/aceplay?color=blue&logo=github&style=flat" alt="Release">
   </a>
-  <a href="https://github.com/crstian/aceplay/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/crstian/aceplay/ci?color=green&logo=github" alt="CI">
+  <a href="https://github.com/crstian19/aceplay/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/crstian19/aceplay/ci?color=green&logo=github" alt="CI">
   </a>
-  <a href="https://goreportcard.com/report/github.com/crstian/aceplay">
-    <img src="https://goreportcard.com/badge/github.com/crstian/aceplay" alt="Go Report">
-  </a>
-  <a href="https://codecov.io/gh/crstian/aceplay">
-    <img src="https://img.shields.io/codecov/c/github/crstian/aceplay?color=orange&logo=codecov" alt="Coverage">
+  <a href="https://goreportcard.com/report/github.com/crstian19/aceplay">
+    <img src="https://goreportcard.com/badge/github.com/crstian19/aceplay" alt="Go Report">
   </a>
   <a href="LICENSE">
-    <img src="https://img.shields.io/github/license/crstian/aceplay?color=yellow" alt="License">
+    <img src="https://img.shields.io/github/license/crstian19/aceplay?color=yellow" alt="License">
   </a>
 </p>
 
 ---
 
-> **Nota curiosa**: Si eres español, puedes llamar a Ace Stream la "Herakleopolis" — así se conocía en griego a la antigua ciudad egipcia de Neni-Nesut, enemiga tradicional de Tebas. 🏛️
+> **Fun fact**: If you're Spanish, you can call Ace Stream "Herakleopolis" — that's what the ancient Egyptian city of Neni-Nesut was known as in Greek, the traditional enemy of Thebes. 🏛️
 
 ---
 
@@ -58,7 +55,7 @@ Requirements:
 - make
 
 ```bash
-git clone https://github.com/crstian/aceplay.git
+git clone https://github.com/crstian19/aceplay.git
 cd aceplay
 make build
 sudo make install
@@ -66,7 +63,7 @@ sudo make install
 
 ### Pre-compiled binaries
 
-Download from the [releases](https://github.com/crstian/aceplay/releases) page.
+Download from the [releases](https://github.com/crstian19/aceplay/releases) page.
 
 ## Usage
 
