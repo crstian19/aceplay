@@ -72,9 +72,11 @@ jobs:
         echo "$AUR_SSH_KEY" > ~/.ssh/id_ed25519
         chmod 600 ~/.ssh/id_ed25519
         echo "Host aur.archlinux.org" > ~/.ssh/config
+        echo "    HostName aur.archlinux.org" >> ~/.ssh/config
+        echo "    User aur" >> ~/.ssh/config
         echo "    IdentityFile ~/.ssh/id_ed25519" >> ~/.ssh/config
         echo "    StrictHostKeyChecking no" >> ~/.ssh/config
-        git clone aur@aur.archlinux.org:aceplay-bin.git /tmp/aceplay-bin-repo
+        git clone aur@aur.archlinux.org:aceplay-bin.git /tmp/aceplay-bin-repo || git clone ssh://aur@aur.archlinux.org/aceplay-bin.git /tmp/aceplay-bin-repo
         cd /tmp/aceplay-bin-repo
         cp /tmp/aceplay-bin/* .
         git add .
