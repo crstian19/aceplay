@@ -8,6 +8,9 @@
   <a href="https://github.com/crstian19/aceplay/releases">
     <img src="https://img.shields.io/github/v/release/crstian19/aceplay?sort=semver&style=for-the-badge" alt="Release">
   </a>
+  <a href="https://aur.archlinux.org/packages/aceplay">
+    <img src="https://img.shields.io/aur/version/aceplay?style=for-the-badge&color=blue" alt="AUR">
+  </a>
   <a href="https://github.com/crstian19/aceplay/actions/workflows/ci.yml">
     <img src="https://img.shields.io/github/actions/workflow/status/crstian19/aceplay/ci.yml?style=for-the-badge" alt="CI">
   </a>
