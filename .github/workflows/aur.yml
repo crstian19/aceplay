@@ -77,8 +77,8 @@ jobs:
         cd /tmp/aceplay-bin-repo
         ls -la
         cp /tmp/aceplay-bin/* .
-        ls -la
         git add -A
+        git add -f .SRCINFO
         git status
         if git diff --staged --quiet; then
           echo "No changes to commit for aceplay-bin"
@@ -116,8 +116,8 @@ jobs:
         cd /tmp/aceplay-repo
         ls -la
         cp /tmp/aceplay/* .
-        ls -la
         git add -A
+        git add -f .SRCINFO
         git status
         if git diff --staged --quiet; then
           echo "No changes to commit for aceplay"
