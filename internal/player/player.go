@@ -129,9 +129,6 @@ func getDefaultArgs(name string) []string {
 		return []string{
 			"--force-window=immediate",
 			"--cache=yes",
-			"--cache-secs=30",
-			"--demuxer-max-bytes=50M",
-			"--demuxer-max-back-bytes=25M",
 		}
 	case PlayerVLC:
 		return []string{

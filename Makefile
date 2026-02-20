@@ -1,4 +1,4 @@
-RE# Makefile for Aceplay
+# Makefile for Aceplay
 
 # Variables
 BINARY_NAME := aceplay

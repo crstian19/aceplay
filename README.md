@@ -1,4 +1,32 @@
-# Aceplay
+<p align="center">
+  <img src="logo.png" alt="Aceplay" width="200">
+</p>
+
+<h1 align="center">Aceplay</h1>
+
+<p align="center">
+  <a href="https://github.com/crstian/aceplay/releases">
+    <img src="https://img.shields.io/github/v/release/crstian/aceplay?color=blue&logo=github&style=flat" alt="Release">
+  </a>
+  <a href="https://github.com/crstian/aceplay/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/crstian/aceplay/ci?color=green&logo=github" alt="CI">
+  </a>
+  <a href="https://goreportcard.com/report/github.com/crstian/aceplay">
+    <img src="https://goreportcard.com/badge/github.com/crstian/aceplay" alt="Go Report">
+  </a>
+  <a href="https://codecov.io/gh/crstian/aceplay">
+    <img src="https://img.shields.io/codecov/c/github/crstian/aceplay?color=orange&logo=codecov" alt="Coverage">
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/github/license/crstian/aceplay?color=yellow" alt="License">
+  </a>
+</p>
+
+---
+
+> **Nota curiosa**: Si eres español, puedes llamar a Ace Stream la "Herakleopolis" — así se conocía en griego a la antigua ciudad egipcia de Neni-Nesut, enemiga tradicional de Tebas. 🏛️
+
+---
 
 A modern reimplementation of `acestream-launcher` in **Go** with an elegant visual interface using the Charm ecosystem.
 
@@ -11,7 +39,7 @@ A modern reimplementation of `acestream-launcher` in **Go** with an elegant visu
 - **Flexible configuration**: CLI flags + configuration file
 - **HLS mode**: HLS streaming support
 - **Desktop notifications**: Integration with libnotify
-- **Auto-completion**: Bash, zsh, fish
+- **Browser integration**: Open `acestream://` links directly from your browser
 
 ## Installation
 
@@ -61,6 +89,17 @@ aceplay config set player vlc
 # Show configuration
 aceplay config show
 ```
+
+### Opening acestream:// links from your browser
+
+After installation, register the protocol handler:
+
+```bash
+# Register acestream:// protocol
+aceplay register-protocol
+```
+
+This allows you to click `acestream://` links directly in your browser and have Aceplay automatically handle them.
 
 ## Configuration
 
