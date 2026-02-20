@@ -13,12 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout main
+    - name: Checkout code
       uses: actions/checkout@v4
       with:
-        ref: main
         fetch-depth: 0
-        persist-credentials: false
 
     - name: Get tag version
       run: |
