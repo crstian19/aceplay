@@ -21,6 +21,14 @@ jobs:
       id: extract_version
       run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
+    - name: Debug - List files
+      run: |
+        echo "=== Current directory ==="
+        pwd
+        ls -la
+        echo "=== Scripts directory ==="
+        ls -la scripts/
+
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
@@ -44,20 +52,21 @@ jobs:
         cp scripts/LICENSE /tmp/aceplay-bin/
         cp aceplay /tmp/aceplay-bin/aceplay
         sed -i 's/pkgver=.*/pkgver=${{ steps.extract_version.outputs.VERSION }}/' /tmp/aceplay-bin/PKGBUILD
+        echo "=== aceplay-bin files ==="
+        ls -la /tmp/aceplay-bin/
 
     - name: Publish aceplay-bin to AUR
       env:
         AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
       run: |
-        chmod 600 /tmp/aur_key
         echo "$AUR_SSH_KEY" > /tmp/aur_key
         chmod 600 /tmp/aur_key
-        git clone ssh://aur@aur.archlinux.org/aceplay-bin.git /tmp/aceplay-bin-repo
+        git clone ssh://aur@aur.archlinux.org/aceplay-bin.git /tmp/aceplay-bin-repo || git clone https://aur@aur.archlinux.org/aceplay-bin.git /tmp/aceplay-bin-repo
         cd /tmp/aceplay-bin-repo
         cp /tmp/aceplay-bin/* .
         git add .
-        git commit -m "Update to v${{ steps.extract_version.outputs.VERSION }}"
-        GIT_SSH_COMMAND="ssh -i /tmp/aur_key -o StrictHostKeyChecking=no" git push origin master
+        git commit -m "Update to v${{ steps.extract_version.outputs.VERSION }}" || echo "No changes to commit"
+        GIT_SSH_COMMAND="ssh -i /tmp/aur_key -o StrictHostKeyChecking=no" git push origin master || echo "Push may have failed"
 
     - name: Prepare aceplay files
       run: |
@@ -73,9 +82,9 @@ jobs:
       run: |
         echo "$AUR_SSH_KEY" > /tmp/aur_key
         chmod 600 /tmp/aur_key
-        git clone ssh://aur@aur.archlinux.org/aceplay.git /tmp/aceplay-repo
+        git clone ssh://aur@aur.archlinux.org/aceplay.git /tmp/aceplay-repo || git clone https://aur@aur.archlinux.org/aceplay.git /tmp/aceplay-repo
         cd /tmp/aceplay-repo
         cp /tmp/aceplay/* .
         git add .
-        git commit -m "Update to v${{ steps.extract_version.outputs.VERSION }}"
-        GIT_SSH_COMMAND="ssh -i /tmp/aur_key -o StrictHostKeyChecking=no" git push origin master
+        git commit -m "Update to v${{ steps.extract_version.outputs.VERSION }}" || echo "No changes to commit"
+        GIT_SSH_COMMAND="ssh -i /tmp/aur_key -o StrictHostKeyChecking=no" git push origin master || echo "Push may have failed"
