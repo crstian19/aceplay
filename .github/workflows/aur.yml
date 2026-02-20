@@ -14,6 +14,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Extract version
       id: extract_version
@@ -28,23 +30,32 @@ jobs:
       run: |
         go build -ldflags "-X main.version=${{ steps.extract_version.outputs.VERSION }}" -o aceplay ./cmd
 
-    - name: Update aceplay-bin PKGBUILD
+    - name: Prepare aceplay-bin files
       run: |
-        cd aceplay-bin/aceplay-bin
-        sed -i 's/pkgver=.*/pkgver=${{ steps.extract_version.outputs.VERSION }}/' PKGBUILD
-        cat PKGBUILD
+        mkdir -p aur-aceplay-bin
+        cp scripts/PKGBUILD.bin aur-aceplay-bin/PKGBUILD
+        cp scripts/.SRCINFO.bin aur-aceplay-bin/.SRCINFO
+        cp scripts/aceplay.desktop aur-aceplay-bin/
+        cp scripts/LICENSE aur-aceplay-bin/
+        cp aceplay aur-aceplay-bin/aceplay
+        sed -i 's/pkgver=.*/pkgver=${{ steps.extract_version.outputs.VERSION }}/' aur-aceplay-bin/PKGBUILD
 
-    - name: Update aceplay PKGBUILD
+    - name: Prepare aceplay files
       run: |
-        cd aceplay
-        sed -i 's/pkgver=.*/pkgver=${{ steps.extract_version.outputs.VERSION }}/' PKGBUILD
-        cat PKGBUILD
+        mkdir -p aur-aceplay
+        cp scripts/PKGBUILD aur-aceplay/PKGBUILD
+        cp scripts/aceplay.desktop aur-aceplay/
+        cp scripts/LICENSE aur-aceplay/
+        sed -i 's/pkgver=.*/pkgver=${{ steps.extract_version.outputs.VERSION }}/' aur-aceplay/PKGBUILD
+        # Download source for aceplay (compiles from source)
+        cd aur-aceplay
+        curl -sL "https://github.com/crstian19/aceplay/archive/v${{ steps.extract_version.outputs.VERSION }}.tar.gz" -o source.tar.gz
 
     - name: Publish aceplay-bin to AUR
       uses: ulises-jeremias/github-actions-aur-publish@v1
       with:
         pkgname: aceplay-bin
-        pkgbuild: ./aceplay-bin/aceplay-bin/PKGBUILD
+        pkgbuild: ./aur-aceplay-bin/PKGBUILD
         commit_username: ${{ secrets.AUR_USERNAME }}
         commit_email: ${{ secrets.AUR_EMAIL }}
         ssh_private_key: ${{ secrets.AUR_SSH_KEY }}
@@ -55,7 +66,7 @@ jobs:
       uses: ulises-jeremias/github-actions-aur-publish@v1
       with:
         pkgname: aceplay
-        pkgbuild: ./aceplay/PKGBUILD
+        pkgbuild: ./aur-aceplay/PKGBUILD
         commit_username: ${{ secrets.AUR_USERNAME }}
         commit_email: ${{ secrets.AUR_EMAIL }}
         ssh_private_key: ${{ secrets.AUR_SSH_KEY }}
