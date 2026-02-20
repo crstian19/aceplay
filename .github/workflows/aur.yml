@@ -24,6 +24,7 @@ jobs:
       run: |
         VERSION="${GITHUB_REF#refs/tags/v}"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "VERSION=$VERSION"
 
     - name: Debug
       run: |
@@ -37,7 +38,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.25'
+        go-version: '1.24'
 
     - name: Build
       run: |
