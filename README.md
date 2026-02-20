@@ -17,9 +17,6 @@
   <a href="LICENSE">
     <img src="https://img.shields.io/github/license/crstian19/aceplay?style=for-the-badge&color=orange" alt="License">
   </a>
-  <a href="https://discord.gg">
-    <img src="https://img.shields.io/badge/Discord-join?style=for-the-badge&color=5865F2" alt="Discord">
-  </a>
 </p>
 
 ---
