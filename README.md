@@ -18,7 +18,7 @@
 
 ---
 
-> **Fun fact**: In Spain, we call aceplay "Herakleopolis" — Herakleopolis was the ancient Greek name for Neni-Nesut, the eternal enemy of Thebes. Just like Thebes (a.k.a. Tebas, the LaLiga president who keeps blocking legitimate streaming sites), we keep streaming anyway. 🏛️
+> **Fun fact**: In Spain, aceplay is also known as "Herakleopolis" — the ancient Greek name for Neni-Nesut, the eternal rival of Thebes. 🏛️
 
 ---
 
