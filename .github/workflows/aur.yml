@@ -52,6 +52,10 @@ jobs:
         cp scripts/LICENSE /tmp/aceplay-bin/
         sed -i "s/pkgver=.*/pkgver=$VERSION/" /tmp/aceplay-bin/PKGBUILD
         sed -i "s/__VERSION__/$VERSION/g" /tmp/aceplay-bin/.SRCINFO
+        echo "=== PKGBUILD ==="
+        cat /tmp/aceplay-bin/PKGBUILD
+        echo "=== .SRCINFO ==="
+        cat /tmp/aceplay-bin/.SRCINFO
 
     - name: Publish aceplay-bin to AUR
       env:
@@ -93,6 +97,10 @@ jobs:
         cp scripts/LICENSE /tmp/aceplay/
         sed -i "s/pkgver=.*/pkgver=$VERSION/" /tmp/aceplay/PKGBUILD
         sed -i "s/__VERSION__/$VERSION/g" /tmp/aceplay/.SRCINFO
+        echo "=== PKGBUILD ==="
+        cat /tmp/aceplay/PKGBUILD
+        echo "=== .SRCINFO ==="
+        cat /tmp/aceplay/.SRCINFO
 
     - name: Publish aceplay to AUR
       env:
