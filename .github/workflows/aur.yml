@@ -19,16 +19,13 @@ jobs:
         ref: main
 
     - name: Extract version
-      id: extract_version
       run: |
         VERSION="${GITHUB_REF#refs/tags/v}"
-        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-        echo "VERSION=$VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
     - name: Debug - List files
       run: |
-        echo "=== VERSION from step ==="
-        echo $VERSION
+        echo "VERSION: $VERSION"
         echo "=== Current directory ==="
         pwd
         ls -la
@@ -52,16 +49,23 @@ jobs:
 
     - name: Prepare aceplay-bin files
       run: |
+        set -x
         mkdir -p /tmp/aceplay-bin
         cp scripts/PKGBUILD.bin /tmp/aceplay-bin/PKGBUILD
-        cp scripts/.SRCINFO.bin /tmp/aceplay-bin/.SRCINFO
-        cp scripts/aceplay.desktop /tmp/aceplay-bin/
-        cp scripts/LICENSE /tmp/aceplay-bin/
-        cp aceplay /tmp/aceplay-bin/aceplay
-        sed -i "s/pkgver=.*/pkgver=$VERSION/" /tmp/aceplay-bin/PKGBUILD
-        echo "=== aceplay-bin files ==="
         ls -la /tmp/aceplay-bin/
         cat /tmp/aceplay-bin/PKGBUILD
+        if [ -f "scripts/.SRCINFO.bin" ]; then
+          cp scripts/.SRCINFO.bin /tmp/aceplay-bin/.SRCINFO
+        fi
+        cp scripts/aceplay.desktop /tmp/aceplay-bin/
+        cp scripts/LICENSE /tmp/aceplay-bin/
+        if [ -f "aceplay" ]; then
+          cp aceplay /tmp/aceplay-bin/aceplay
+        else
+          echo "ERROR: aceplay binary not found!"
+          exit 1
+        fi
+        sed -i "s/pkgver=.*/pkgver=$VERSION/" /tmp/aceplay-bin/PKGBUILD
 
     - name: Publish aceplay-bin to AUR
       env:
