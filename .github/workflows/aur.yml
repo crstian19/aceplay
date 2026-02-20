@@ -1,0 +1,63 @@
+name: AUR Publish
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: read
+
+jobs:
+  aur-publish:
+    name: Publish to AUR
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Extract version
+      id: extract_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.25'
+
+    - name: Build Linux binary
+      run: |
+        go build -ldflags "-X main.version=${{ steps.extract_version.outputs.VERSION }}" -o aceplay ./cmd
+
+    - name: Update aceplay-bin PKGBUILD
+      run: |
+        cd aceplay-bin/aceplay-bin
+        sed -i 's/pkgver=.*/pkgver=${{ steps.extract_version.outputs.VERSION }}/' PKGBUILD
+        cat PKGBUILD
+
+    - name: Update aceplay PKGBUILD
+      run: |
+        cd aceplay
+        sed -i 's/pkgver=.*/pkgver=${{ steps.extract_version.outputs.VERSION }}/' PKGBUILD
+        cat PKGBUILD
+
+    - name: Publish aceplay-bin to AUR
+      uses: ulises-jeremias/github-actions-aur-publish@v1
+      with:
+        pkgname: aceplay-bin
+        pkgbuild: ./aceplay-bin/aceplay-bin/PKGBUILD
+        commit_username: ${{ secrets.AUR_USERNAME }}
+        commit_email: ${{ secrets.AUR_EMAIL }}
+        ssh_private_key: ${{ secrets.AUR_SSH_KEY }}
+        commit_message: "Update to v${{ steps.extract_version.outputs.VERSION }}"
+        ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
+
+    - name: Publish aceplay to AUR
+      uses: ulises-jeremias/github-actions-aur-publish@v1
+      with:
+        pkgname: aceplay
+        pkgbuild: ./aceplay/PKGBUILD
+        commit_username: ${{ secrets.AUR_USERNAME }}
+        commit_email: ${{ secrets.AUR_EMAIL }}
+        ssh_private_key: ${{ secrets.AUR_SSH_KEY }}
+        commit_message: "Update to v${{ steps.extract_version.outputs.VERSION }}"
+        ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
