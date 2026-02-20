@@ -6,22 +6,25 @@
 
 <p align="center">
   <a href="https://github.com/crstian19/aceplay/releases">
-    <img src="https://img.shields.io/github/v/release/crstian19/aceplay?color=blue&logo=github&style=flat" alt="Release">
+    <img src="https://img.shields.io/github/v/release/crstian19/aceplay?style=for-the-badge&color=blue" alt="Release">
   </a>
   <a href="https://github.com/crstian19/aceplay/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/crstian19/aceplay/ci?color=green&logo=github" alt="CI">
+    <img src="https://img.shields.io/github/actions/workflow/status/crstian19/aceplay/ci?style=for-the-badge&color=green" alt="CI">
   </a>
   <a href="https://goreportcard.com/report/github.com/crstian19/aceplay">
-    <img src="https://goreportcard.com/badge/github.com/crstian19/aceplay" alt="Go Report">
+    <img src="https://img.shields.io/goreportcard/g/github.com/crstian19/aceplay?style=for-the-badge&color=yellow" alt="Go Report">
   </a>
   <a href="LICENSE">
-    <img src="https://img.shields.io/github/license/crstian19/aceplay?color=yellow" alt="License">
+    <img src="https://img.shields.io/github/license/crstian19/aceplay?style=for-the-badge&color=orange" alt="License">
+  </a>
+  <a href="https://discord.gg">
+    <img src="https://img.shields.io/badge/Discord-join?style=for-the-badge&color=5865F2" alt="Discord">
   </a>
 </p>
 
 ---
 
-> **Fun fact**: If you're Spanish, you can call Ace Stream "Herakleopolis" — that's what the ancient Egyptian city of Neni-Nesut was known as in Greek, the traditional enemy of Thebes. 🏛️
+> **Fun fact**: If you're Spanish, you can call aceplay "Herakleopolis" — that's what the ancient Egyptian city of Neni-Nesut was known as in Greek, the traditional enemy of Thebes. 🏛️
 
 ---
 
@@ -169,12 +172,12 @@ aceplay/
 - Video player (mpv, vlc, or ffplay)
 
 ### Go Libraries
-- Cobra v1.9.1 - CLI framework
-- Viper v1.20.1 - Configuration
-- Lipgloss v0.12.1 - Terminal styles
+- Cobra v1.10.2 - CLI framework
+- Viper v1.21.0 - Configuration
+- Lipgloss v1.1.0 - Terminal styles
 - Bubbles - UI components
-- Log - Structured logging
-- Resty v2 - HTTP client
+- Log v0.4.2 - Structured logging
+- Resty v2.17.2 - HTTP client
 
 ## License
 
