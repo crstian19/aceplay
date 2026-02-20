@@ -1,5 +1,5 @@
 pkgbase = aceplay
-	pkgdesc = Open acestream:// links directly from your browser - modern CLI tool
+	pkgdesc = Modern CLI to play Ace Stream links - auto-starts acestream-engine, supports mpv/vlc
 	pkgver = 0.1.0
 	pkgrel = 1
 	url = https://github.com/crstian19/aceplay
