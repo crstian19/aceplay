@@ -57,6 +57,7 @@ jobs:
         AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
         AUR_USERNAME: ${{ secrets.AUR_USERNAME }}
       run: |
+        set -x
         mkdir -p ~/.ssh
         echo "$AUR_SSH_KEY" > ~/.ssh/id_ed25519
         chmod 600 ~/.ssh/id_ed25519
@@ -66,13 +67,18 @@ jobs:
         if [ -d "/tmp/aceplay-bin-repo" ]; then
           rm -rf /tmp/aceplay-bin-repo
         fi
-        GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" git clone aur@aur.archlinux.org:aceplay-bin.git /tmp/aceplay-bin-repo
+        echo "Cloning aceplay-bin repo..."
+        GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -v" git clone aur@aur.archlinux.org:aceplay-bin.git /tmp/aceplay-bin-repo
         cd /tmp/aceplay-bin-repo
+        ls -la
         cp /tmp/aceplay-bin/* .
+        ls -la
         git add -A
+        git status
         if git diff --staged --quiet; then
           echo "No changes to commit for aceplay-bin"
         else
+          echo "Committing and pushing..."
           git commit -m "Update to v$VERSION"
           GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" git push origin master
         fi
@@ -91,16 +97,22 @@ jobs:
         AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
         AUR_USERNAME: ${{ secrets.AUR_USERNAME }}
       run: |
+        set -x
         if [ -d "/tmp/aceplay-repo" ]; then
           rm -rf /tmp/aceplay-repo
         fi
-        GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" git clone aur@aur.archlinux.org:aceplay.git /tmp/aceplay-repo
+        echo "Cloning aceplay repo..."
+        GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -v" git clone aur@aur.archlinux.org:aceplay.git /tmp/aceplay-repo
         cd /tmp/aceplay-repo
+        ls -la
         cp /tmp/aceplay/* .
+        ls -la
         git add -A
+        git status
         if git diff --staged --quiet; then
           echo "No changes to commit for aceplay"
         else
+          echo "Committing and pushing..."
           git commit -m "Update to v$VERSION"
           GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" git push origin master
         fi
