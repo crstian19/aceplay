@@ -6,16 +6,16 @@
 
 <p align="center">
   <a href="https://github.com/crstian19/aceplay/releases">
-    <img src="https://img.shields.io/github/v/release/crstian19/aceplay?style=for-the-badge&color=blue" alt="Release">
+    <img src="https://img.shields.io/github/v/release/crstian19/aceplay?sort=semver&style=for-the-badge" alt="Release">
   </a>
   <a href="https://github.com/crstian19/aceplay/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/crstian19/aceplay/ci?style=for-the-badge&color=green" alt="CI">
+    <img src="https://img.shields.io/github/actions/workflow/status/crstian19/aceplay/ci.yml?style=for-the-badge" alt="CI">
   </a>
   <a href="https://goreportcard.com/report/github.com/crstian19/aceplay">
-    <img src="https://img.shields.io/goreportcard/g/github.com/crstian19/aceplay?style=for-the-badge&color=yellow" alt="Go Report">
+    <img src="https://goreportcard.com/badge/github.com/crstian19/aceplay" alt="Go Report">
   </a>
   <a href="LICENSE">
-    <img src="https://img.shields.io/github/license/crstian19/aceplay?style=for-the-badge&color=orange" alt="License">
+    <img src="https://img.shields.io/github/license/crstian19/aceplay?style=for-the-badge" alt="License">
   </a>
 </p>
 
