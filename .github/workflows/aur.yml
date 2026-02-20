@@ -24,15 +24,10 @@ jobs:
       run: |
         VERSION="${GITHUB_REF#refs/tags/v}"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-        echo "VERSION=$VERSION"
 
     - name: Debug
       run: |
         echo "VERSION: $VERSION"
-        echo "=== Current directory ==="
-        pwd
-        ls -la
-        echo "=== Scripts ==="
         ls -la scripts/
 
     - name: Set up Go
@@ -43,7 +38,6 @@ jobs:
     - name: Build
       run: |
         go build -ldflags "-X main.version=$VERSION" -o aceplay ./cmd
-        ls -la aceplay
 
     - name: Configure Git
       run: |
@@ -52,36 +46,29 @@ jobs:
 
     - name: Prepare aceplay-bin
       run: |
-        set -e
-        echo "Starting prepare..."
         mkdir -p /tmp/aceplay-bin
-        echo "Copying PKGBUILD.bin..."
-        cp scripts/PKGBUILD.bin /tmp/aceplay-bin/PKGBUILD || { echo "Failed to copy PKGBUILD.bin"; exit 1; }
+        cp scripts/PKGBUILD.bin /tmp/aceplay-bin/PKGBUILD
         cp scripts/aceplay.desktop /tmp/aceplay-bin/
         cp scripts/LICENSE /tmp/aceplay-bin/
-        cp aceplay /tmp/aceplay-bin/aceplay || { echo "Failed to copy aceplay binary"; exit 1; }
-        sed -i "s/pkgver=.*/pkgver=$VERSION/" /tmp/aceplay-bin/PKGBUILD || { echo "Failed to sed"; exit 1; }
-        ls -la /tmp/aceplay-bin/
-        echo "Done!"
+        cp aceplay /tmp/aceplay-bin/aceplay
+        sed -i "s/pkgver=.*/pkgver=$VERSION/" /tmp/aceplay-bin/PKGBUILD
 
     - name: Publish aceplay-bin to AUR
       env:
         AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
+        AUR_USERNAME: ${{ secrets.AUR_USERNAME }}
       run: |
         mkdir -p ~/.ssh
         echo "$AUR_SSH_KEY" > ~/.ssh/id_ed25519
         chmod 600 ~/.ssh/id_ed25519
-        echo "Host aur.archlinux.org" > ~/.ssh/config
-        echo "    HostName aur.archlinux.org" >> ~/.ssh/config
-        echo "    User aur" >> ~/.ssh/config
-        echo "    IdentityFile ~/.ssh/id_ed25519" >> ~/.ssh/config
-        echo "    StrictHostKeyChecking no" >> ~/.ssh/config
-        git clone aur@aur.archlinux.org:aceplay-bin.git /tmp/aceplay-bin-repo || git clone ssh://aur@aur.archlinux.org/aceplay-bin.git /tmp/aceplay-bin-repo
+        chmod 700 ~/.ssh
+        ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts 2>/dev/null || true
+        GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" git clone aur@aur.archlinux.org:aceplay-bin.git /tmp/aceplay-bin-repo || true
         cd /tmp/aceplay-bin-repo
         cp /tmp/aceplay-bin/* .
         git add .
-        git commit -m "Update to v$VERSION" || echo "Nothing to commit"
-        git push origin master
+        git commit -m "Update to v$VERSION" || echo "No changes"
+        GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" git push origin master || echo "Push failed"
 
     - name: Prepare aceplay
       run: |
@@ -94,10 +81,11 @@ jobs:
     - name: Publish aceplay to AUR
       env:
         AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
+        AUR_USERNAME: ${{ secrets.AUR_USERNAME }}
       run: |
-        git clone aur@aur.archlinux.org:aceplay.git /tmp/aceplay-repo
+        GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" git clone aur@aur.archlinux.org:aceplay.git /tmp/aceplay-repo || true
         cd /tmp/aceplay-repo
         cp /tmp/aceplay/* .
         git add .
-        git commit -m "Update to v$VERSION" || echo "Nothing to commit"
-        git push origin master
+        git commit -m "Update to v$VERSION" || echo "No changes"
+        GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" git push origin master || echo "Push failed"
