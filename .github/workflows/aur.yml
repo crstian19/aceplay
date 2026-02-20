@@ -52,13 +52,17 @@ jobs:
 
     - name: Prepare aceplay-bin
       run: |
+        set -e
+        echo "Starting prepare..."
         mkdir -p /tmp/aceplay-bin
-        cp scripts/PKGBUILD.bin /tmp/aceplay-bin/PKGBUILD
+        echo "Copying PKGBUILD.bin..."
+        cp scripts/PKGBUILD.bin /tmp/aceplay-bin/PKGBUILD || { echo "Failed to copy PKGBUILD.bin"; exit 1; }
         cp scripts/aceplay.desktop /tmp/aceplay-bin/
         cp scripts/LICENSE /tmp/aceplay-bin/
-        cp aceplay /tmp/aceplay-bin/aceplay
-        sed -i "s/pkgver=.*/pkgver=$VERSION/" /tmp/aceplay-bin/PKGBUILD
+        cp aceplay /tmp/aceplay-bin/aceplay || { echo "Failed to copy aceplay binary"; exit 1; }
+        sed -i "s/pkgver=.*/pkgver=$VERSION/" /tmp/aceplay-bin/PKGBUILD || { echo "Failed to sed"; exit 1; }
         ls -la /tmp/aceplay-bin/
+        echo "Done!"
 
     - name: Publish aceplay-bin to AUR
       env:
