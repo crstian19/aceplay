@@ -40,3 +40,9 @@ config.yaml
 # Temporary files
 *.tmp
 *.temp
+
+# Package build artifacts
+scripts/aceplay
+scripts/aceplay-*.pkg.tar.zst
+scripts/pkg/
+scripts/src/
