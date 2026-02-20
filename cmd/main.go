@@ -14,12 +14,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/crstian/aceplay/internal/acestream"
-	"github.com/crstian/aceplay/internal/config"
-	notify "github.com/crstian/aceplay/internal/notify"
-	"github.com/crstian/aceplay/internal/player"
-	"github.com/crstian/aceplay/internal/ui"
-	aceurl "github.com/crstian/aceplay/pkg/acestream"
+	"github.com/crstian19/aceplay/internal/acestream"
+	"github.com/crstian19/aceplay/internal/config"
+	notify "github.com/crstian19/aceplay/internal/notify"
+	"github.com/crstian19/aceplay/internal/player"
+	"github.com/crstian19/aceplay/internal/ui"
+	aceurl "github.com/crstian19/aceplay/pkg/acestream"
 )
 
 var (
