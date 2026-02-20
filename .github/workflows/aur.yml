@@ -13,23 +13,25 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout main
+      uses: actions/checkout@v4
       with:
-        fetch-depth: 0
         ref: main
+        fetch-depth: 0
+        persist-credentials: false
 
-    - name: Extract version
+    - name: Get tag version
       run: |
         VERSION="${GITHUB_REF#refs/tags/v}"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-    - name: Debug - List files
+    - name: Debug
       run: |
         echo "VERSION: $VERSION"
         echo "=== Current directory ==="
         pwd
         ls -la
-        echo "=== Scripts directory ==="
+        echo "=== Scripts ==="
         ls -la scripts/
 
     - name: Set up Go
@@ -37,50 +39,44 @@ jobs:
       with:
         go-version: '1.25'
 
-    - name: Build Linux binary
+    - name: Build
       run: |
-        echo "Building with version: $VERSION"
         go build -ldflags "-X main.version=$VERSION" -o aceplay ./cmd
+        ls -la aceplay
 
     - name: Configure Git
       run: |
         git config --global user.name "${{ secrets.AUR_USERNAME }}"
         git config --global user.email "${{ secrets.AUR_EMAIL }}"
 
-    - name: Prepare aceplay-bin files
+    - name: Prepare aceplay-bin
       run: |
-        set -x
         mkdir -p /tmp/aceplay-bin
         cp scripts/PKGBUILD.bin /tmp/aceplay-bin/PKGBUILD
-        ls -la /tmp/aceplay-bin/
-        cat /tmp/aceplay-bin/PKGBUILD
-        if [ -f "scripts/.SRCINFO.bin" ]; then
-          cp scripts/.SRCINFO.bin /tmp/aceplay-bin/.SRCINFO
-        fi
         cp scripts/aceplay.desktop /tmp/aceplay-bin/
         cp scripts/LICENSE /tmp/aceplay-bin/
-        if [ -f "aceplay" ]; then
-          cp aceplay /tmp/aceplay-bin/aceplay
-        else
-          echo "ERROR: aceplay binary not found!"
-          exit 1
-        fi
+        cp aceplay /tmp/aceplay-bin/aceplay
         sed -i "s/pkgver=.*/pkgver=$VERSION/" /tmp/aceplay-bin/PKGBUILD
+        ls -la /tmp/aceplay-bin/
 
     - name: Publish aceplay-bin to AUR
       env:
         AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
       run: |
-        echo "$AUR_SSH_KEY" > /tmp/aur_key
-        chmod 600 /tmp/aur_key
-        git clone ssh://aur@aur.archlinux.org/aceplay-bin.git /tmp/aceplay-bin-repo || git clone https://aur@aur.archlinux.org/aceplay-bin.git /tmp/aceplay-bin-repo
+        mkdir -p ~/.ssh
+        echo "$AUR_SSH_KEY" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        echo "Host aur.archlinux.org" > ~/.ssh/config
+        echo "    IdentityFile ~/.ssh/id_ed25519" >> ~/.ssh/config
+        echo "    StrictHostKeyChecking no" >> ~/.ssh/config
+        git clone aur@aur.archlinux.org:aceplay-bin.git /tmp/aceplay-bin-repo
         cd /tmp/aceplay-bin-repo
         cp /tmp/aceplay-bin/* .
         git add .
-        git commit -m "Update to v$VERSION" || echo "No changes to commit"
-        GIT_SSH_COMMAND="ssh -i /tmp/aur_key -o StrictHostKeyChecking=no" git push origin master || echo "Push may have failed"
+        git commit -m "Update to v$VERSION" || echo "Nothing to commit"
+        git push origin master
 
-    - name: Prepare aceplay files
+    - name: Prepare aceplay
       run: |
         mkdir -p /tmp/aceplay
         cp scripts/PKGBUILD /tmp/aceplay/PKGBUILD
@@ -92,11 +88,9 @@ jobs:
       env:
         AUR_SSH_KEY: ${{ secrets.AUR_SSH_KEY }}
       run: |
-        echo "$AUR_SSH_KEY" > /tmp/aur_key
-        chmod 600 /tmp/aur_key
-        git clone ssh://aur@aur.archlinux.org/aceplay.git /tmp/aceplay-repo || git clone https://aur@aur.archlinux.org/aceplay.git /tmp/aceplay-repo
+        git clone aur@aur.archlinux.org:aceplay.git /tmp/aceplay-repo
         cd /tmp/aceplay-repo
         cp /tmp/aceplay/* .
         git add .
-        git commit -m "Update to v$VERSION" || echo "No changes to commit"
-        GIT_SSH_COMMAND="ssh -i /tmp/aur_key -o StrictHostKeyChecking=no" git push origin master || echo "Push may have failed"
+        git commit -m "Update to v$VERSION" || echo "Nothing to commit"
+        git push origin master
