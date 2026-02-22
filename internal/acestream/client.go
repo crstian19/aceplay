@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -63,6 +65,54 @@ func (e *EngineManager) GetPort() int {
 	return e.httpPort
 }
 
+// findEngineExecutable resolves the engine binary path.
+// On Windows it also checks common Ace Stream installation directories.
+func (e *EngineManager) findEngineExecutable() (string, error) {
+	if path, err := exec.LookPath(e.command); err == nil {
+		return path, nil
+	}
+
+	if runtime.GOOS == "windows" {
+		candidates := windowsEnginePaths()
+		for _, p := range candidates {
+			if _, err := os.Stat(p); err == nil {
+				return p, nil
+			}
+		}
+		return "", fmt.Errorf(
+			"acestream-engine not found.\n"+
+				"  On Windows, install Ace Stream from https://acestream.org and make sure it is running before using aceplay.",
+		)
+	}
+
+	return "", fmt.Errorf("acestream-engine not found in PATH")
+}
+
+// windowsEnginePaths returns common Ace Stream installation paths on Windows
+func windowsEnginePaths() []string {
+	programFiles := os.Getenv("ProgramFiles")
+	if programFiles == "" {
+		programFiles = `C:\Program Files`
+	}
+	programFilesX86 := os.Getenv("ProgramFiles(x86)")
+	if programFilesX86 == "" {
+		programFilesX86 = `C:\Program Files (x86)`
+	}
+	localAppData := os.Getenv("LOCALAPPDATA")
+	if localAppData == "" {
+		localAppData = filepath.Join(os.Getenv("USERPROFILE"), "AppData", "Local")
+	}
+
+	const engineBin = `engine\acestreamengine.exe`
+	return []string{
+		filepath.Join(programFiles, "Ace Stream Media", engineBin),
+		filepath.Join(programFilesX86, "Ace Stream Media", engineBin),
+		filepath.Join(localAppData, "Programs", "Ace Stream Media", engineBin),
+		filepath.Join(programFiles, "AceStream", engineBin),
+		filepath.Join(programFilesX86, "AceStream", engineBin),
+	}
+}
+
 // Start starts the acestream-engine if not already running
 func (e *EngineManager) Start() error {
 	if e.process != nil {
@@ -80,8 +130,13 @@ func (e *EngineManager) Start() error {
 		return fmt.Errorf("acestream-engine is not running and auto-start is disabled")
 	}
 
+	engineExe, err := e.findEngineExecutable()
+	if err != nil {
+		return err
+	}
+
 	// Start the engine with fixed HTTP port
-	cmd := exec.Command(e.command, "--client-console", "--http-port", "6878")
+	cmd := exec.Command(engineExe, "--client-console", "--http-port", "6878")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
