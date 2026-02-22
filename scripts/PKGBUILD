@@ -25,5 +25,5 @@ build() {
 package() {
     cd "$pkgname-$pkgver"
     install -Dm755 aceplay "$pkgdir/usr/bin/aceplay"
-    install -Dm644 "$srcdir/aceplay.desktop" "$pkgdir/usr/share/applications/aceplay.desktop"
+    install -Dm644 aceplay.desktop "$pkgdir/usr/share/applications/aceplay.desktop"
 }
