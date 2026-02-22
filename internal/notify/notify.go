@@ -79,15 +79,15 @@ func (n *WindowsNotifier) IsAvailable() bool {
 	return err == nil
 }
 
-// Notify sends a notification using PowerShell
+// Notify sends a non-blocking toast notification using PowerShell
 func (n *WindowsNotifier) Notify(title, message string) error {
 	psScript := fmt.Sprintf(
-		`Add-Type -AssemblyName System.Windows.Forms; `+
-			`[System.Windows.Forms.MessageBox]::Show("%s", "%s")`,
+		`$w = New-Object -ComObject Wscript.Shell; $w.Popup("%s", 3, "%s", 0x40) | Out-Null`,
 		message, title,
 	)
-	cmd := exec.Command("powershell", "-Command", psScript)
-	return cmd.Run()
+	cmd := exec.Command("powershell", "-NoProfile", "-WindowStyle", "Hidden", "-Command", psScript)
+	// Start without waiting — notification auto-closes after 3 seconds
+	return cmd.Start()
 }
 
 // GetNotifier returns the appropriate notifier for the operating system

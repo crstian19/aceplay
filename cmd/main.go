@@ -464,7 +464,9 @@ func registerWindows(execPath string) error {
 @="\"%s\" play \"%%1\""
 `
 
-	regContent := fmt.Sprintf(urlProtocol, execPath, execPath)
+	// Backslashes in .reg string values must be escaped as \\
+	escapedPath := strings.ReplaceAll(execPath, `\`, `\\`)
+	regContent := fmt.Sprintf(urlProtocol, escapedPath, escapedPath)
 	regFile, err := os.CreateTemp("", "aceplay-*.reg")
 	if err != nil {
 		return fmt.Errorf("failed to create temp file: %w", err)
