@@ -94,6 +94,22 @@ Usage:
 				}
 			}
 		}
+
+		// First run: no config file exists yet → launch setup wizard
+		if ui.IsFirstRun(cfg.ConfigPath) {
+			availablePlayers := player.GetAvailablePlayers()
+			selectedPlayer, useHLS, err := ui.SetupWizard(availablePlayers)
+			if err != nil {
+				return err
+			}
+			cfg.SetPlayer(selectedPlayer)
+			cfg.SetHLS(useHLS)
+			if err := cfg.Save(); err != nil {
+				return fmt.Errorf("failed to save config: %w", err)
+			}
+			return nil
+		}
+
 		return cmd.Help()
 	},
 }
