@@ -233,6 +233,34 @@ func runPlay(cmd *cobra.Command, args []string) error {
 	fmt.Println(styles.MutedText.Render("  URL: " + streamURL))
 	fmt.Println()
 
+	statsCtx, statsCancel := context.WithCancel(context.Background())
+	defer statsCancel()
+
+	go func() {
+		ticker := time.NewTicker(2 * time.Second)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-statsCtx.Done():
+				return
+			case <-ticker.C:
+				stats, err := acestreamClient.GetStats(aceURL.ContentID)
+				if err != nil {
+					continue
+				}
+
+				line := ui.RenderStreamStatus(
+					string(stats.Status),
+					stats.DownloadSpeed,
+					stats.UploadSpeed,
+					stats.Peers,
+				)
+				fmt.Print("\r" + line + "    ")
+			}
+		}
+	}()
+
 	if verbose {
 		logger.Info("Launching player", "player", playerInstance.Executable())
 	}
@@ -240,6 +268,8 @@ func runPlay(cmd *cobra.Command, args []string) error {
 	if err := playerInstance.Play(context.Background(), streamURL); err != nil {
 		return fmt.Errorf("playback failed: %w", err)
 	}
+
+	fmt.Println()
 
 	return nil
 }
