@@ -139,6 +139,7 @@ func init() {
 	rootCmd.AddCommand(installCmd)
 	rootCmd.AddCommand(registerProtocolCmd)
 	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(interactiveCmd)
 }
 
 func initConfig() {
@@ -292,9 +293,17 @@ var configSetCmd = &cobra.Command{
 	RunE:  runConfigSet,
 }
 
+var configEditCmd = &cobra.Command{
+	Use:   "edit",
+	Short: "Edit configuration interactively",
+	Long:  "Open an interactive menu to configure aceplay settings",
+	RunE:  runConfigEdit,
+}
+
 func init() {
 	configCmd.AddCommand(configShowCmd)
 	configCmd.AddCommand(configSetCmd)
+	configCmd.AddCommand(configEditCmd)
 }
 
 func runConfigShow(cmd *cobra.Command, args []string) error {
@@ -355,6 +364,31 @@ func runConfigSet(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println(styles.Success.Render("✓ Configuration updated"))
+
+	return nil
+}
+
+func runConfigEdit(cmd *cobra.Command, args []string) error {
+	if cfg == nil {
+		var err error
+		cfg, err = config.Load("")
+		if err != nil {
+			return err
+		}
+	}
+
+	availablePlayers := player.GetAvailablePlayers()
+	if len(availablePlayers) == 0 {
+		availablePlayers = []string{"mpv", "vlc", "ffplay"}
+	}
+
+	if err := ui.ConfigEditor(availablePlayers, cfg); err != nil {
+		return err
+	}
+
+	if err := cfg.Save(); err != nil {
+		return fmt.Errorf("failed to save config: %w", err)
+	}
 
 	return nil
 }
@@ -446,4 +480,24 @@ var versionCmd = &cobra.Command{
 		fmt.Printf("Date:       %s\n", date)
 		fmt.Printf("Platform:   %s/%s\n", runtime.GOOS, runtime.GOARCH)
 	},
+}
+
+var interactiveCmd = &cobra.Command{
+	Use:   "interactive",
+	Short: "Open interactive configuration menu",
+	Long: `Open an interactive TUI to configure aceplay settings.
+	
+This command provides a user-friendly interface to:
+• Select your preferred video player (mpv, vlc, ffplay)
+• Configure acestream-engine connection settings
+• Set timeout and playback options
+• Enable/disable HLS and verbose mode
+
+Example:
+  aceplay interactive`,
+	RunE: runInteractive,
+}
+
+func runInteractive(cmd *cobra.Command, args []string) error {
+	return runConfigEdit(cmd, args)
 }
