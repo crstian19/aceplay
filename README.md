@@ -44,14 +44,24 @@ A modern reimplementation of `acestream-launcher` in **Go** with an elegant visu
 
 ## Installation
 
-> **Requirements**: Linux only. Ace Stream engine is only available on Linux.
-
 ### From AUR (Arch Linux)
 
 ```bash
 yay -S aceplay
 # or
 paru -S aceplay
+```
+
+### From .deb package (Debian/Ubuntu)
+
+```bash
+sudo dpkg -i aceplay_*.deb
+```
+
+### From .rpm package (Fedora/RHEL)
+
+```bash
+sudo rpm -i aceplay-*.rpm
 ```
 
 ### From source
@@ -177,7 +187,7 @@ aceplay/
 ### Go Libraries
 - Cobra v1.10.2 - CLI framework
 - Viper v1.21.0 - Configuration
-- Lipgloss v1.1.0 - Terminal styles
+- Lipgloss v2.0.0 - Terminal styles
 - Bubbles - UI components
 - Log v0.4.2 - Structured logging
 - Resty v2.17.2 - HTTP client
