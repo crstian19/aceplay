@@ -315,3 +315,234 @@ type configEditorState struct {
 	verbose          bool
 	availablePlayers []string
 }
+
+func ConfigMenu(availablePlayers []string, currentConfig *config.Config, showConfig func(), editConfig func(), setConfig func()) error {
+	styles := DefaultStyles()
+
+	if !isTerminal() {
+		showConfig()
+		return nil
+	}
+
+	for {
+		fmt.Println()
+		fmt.Println(styles.Title.Render("⚙️  Aceplay Configuration"))
+		fmt.Println()
+
+		currentConfigStr := fmt.Sprintf(`Current Settings:
+  🎬 Player:    %s
+  🔌 Engine:    %s:%d
+  ⏱️  Timeout:   %s
+  📺 HLS:       %s
+  📝 Verbose:   %s`,
+			lipgloss.NewStyle().Bold(true).Foreground(DefaultTheme.Primary).Render(currentConfig.Player),
+			currentConfig.Engine.Host,
+			currentConfig.Engine.Port,
+			currentConfig.Timeout,
+			renderBool(currentConfig.HLS),
+			renderBool(currentConfig.Verbose),
+		)
+
+		var selected int
+
+		form := huh.NewForm(
+			huh.NewGroup(
+				huh.NewNote().
+					Title("⚙️  Configuration Menu").
+					Description(currentConfigStr+"\n\n"),
+
+				huh.NewSelect[int]().
+					Title("What would you like to do?").
+					Options(
+						huh.NewOption("👁️  View configuration", 0),
+						huh.NewOption("✏️  Edit all settings", 1),
+						huh.NewOption("🎬 Change player", 2),
+						huh.NewOption("🔌 Change engine host/port", 3),
+						huh.NewOption("⏱️  Change timeout", 4),
+						huh.NewOption("📺 Toggle HLS", 5),
+						huh.NewOption("❌ Exit", 6),
+					).
+					Value(&selected),
+			),
+		)
+
+		if err := form.Run(); err != nil {
+			return fmt.Errorf("menu error: %w", err)
+		}
+
+		fmt.Println()
+
+		switch selected {
+		case 0:
+			showConfig()
+			if !continuePrompt() {
+				return nil
+			}
+		case 1:
+			editConfig()
+			if !continuePrompt() {
+				return nil
+			}
+		case 2:
+			runPlayerSelector(availablePlayers, currentConfig)
+			if !continuePrompt() {
+				return nil
+			}
+		case 3:
+			runEngineConfig(currentConfig)
+			if !continuePrompt() {
+				return nil
+			}
+		case 4:
+			runTimeoutSelector(currentConfig)
+			if !continuePrompt() {
+				return nil
+			}
+		case 5:
+			currentConfig.HLS = !currentConfig.HLS
+			currentConfig.Save()
+			fmt.Println(styles.Success.Render("✓ HLS mode: " + renderBool(currentConfig.HLS)))
+			fmt.Println()
+			if !continuePrompt() {
+				return nil
+			}
+		case 6:
+			fmt.Println(styles.MutedText.Render("👋 Goodbye!"))
+			fmt.Println()
+			return nil
+		}
+	}
+}
+
+func continuePrompt() bool {
+	var selected int
+
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[int]().
+				Title("Continue?").
+				Options(
+					huh.NewOption("🔙 Back to menu", 0),
+					huh.NewOption("❌ Exit", 1),
+				).
+				Value(&selected),
+		),
+	)
+
+	if err := form.Run(); err != nil {
+		return false
+	}
+
+	return selected == 0
+}
+
+func renderBool(b bool) string {
+	if b {
+		return "✓ Yes"
+	}
+	return "✗ No"
+}
+
+func runPlayerSelector(availablePlayers []string, currentConfig *config.Config) error {
+	styles := DefaultStyles()
+	var player string
+
+	playerOptions := make([]huh.Option[string], len(availablePlayers))
+	for i, p := range availablePlayers {
+		desc := ""
+		switch p {
+		case "mpv":
+			desc = "Recommended - Fast and lightweight"
+		case "vlc":
+			desc = "Feature-rich, supports many formats"
+		case "ffplay":
+			desc = "Part of FFmpeg suite"
+		}
+		playerOptions[i] = huh.NewOption(fmt.Sprintf("%s - %s", p, desc), p)
+	}
+
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[string]().
+				Title("Select Player").
+				Options(playerOptions...).
+				Value(&player),
+		),
+	)
+
+	if err := form.Run(); err != nil {
+		return err
+	}
+
+	currentConfig.Player = player
+	currentConfig.Save()
+	fmt.Println(styles.Success.Render("✓ Player set to: " + player))
+	fmt.Println()
+	return nil
+}
+
+func runEngineConfig(currentConfig *config.Config) error {
+	styles := DefaultStyles()
+	var host string
+	var port string
+
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewInput().
+				Title("Engine Host").
+				Placeholder("localhost").
+				Value(&host),
+			huh.NewInput().
+				Title("Engine Port").
+				Placeholder("6878").
+				Value(&port),
+		),
+	)
+
+	if err := form.Run(); err != nil {
+		return err
+	}
+
+	if host != "" {
+		currentConfig.Engine.Host = host
+	}
+	if port != "" {
+		fmt.Sscanf(port, "%d", &currentConfig.Engine.Port)
+	}
+	currentConfig.Save()
+	fmt.Println(styles.Success.Render("✓ Engine: " + currentConfig.Engine.Host + ":" + fmt.Sprintf("%d", currentConfig.Engine.Port)))
+	fmt.Println()
+	return nil
+}
+
+func runTimeoutSelector(currentConfig *config.Config) error {
+	styles := DefaultStyles()
+	var timeout string
+
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[string]().
+				Title("Select Timeout").
+				Options(
+					huh.NewOption("30 seconds", "30s"),
+					huh.NewOption("1 minute", "1m"),
+					huh.NewOption("2 minutes", "2m"),
+					huh.NewOption("5 minutes", "5m"),
+					huh.NewOption("10 minutes", "10m"),
+				).
+				Value(&timeout),
+		),
+	)
+
+	if err := form.Run(); err != nil {
+		return err
+	}
+
+	if dur, err := time.ParseDuration(timeout); err == nil {
+		currentConfig.Timeout = dur
+		currentConfig.Save()
+	}
+	fmt.Println(styles.Success.Render("✓ Timeout: " + currentConfig.Timeout.String()))
+	fmt.Println()
+	return nil
+}

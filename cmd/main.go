@@ -278,6 +278,7 @@ func runPlay(cmd *cobra.Command, args []string) error {
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Configuration management",
+	RunE:  runConfigMenu,
 }
 
 var configShowCmd = &cobra.Command{
@@ -304,6 +305,47 @@ func init() {
 	configCmd.AddCommand(configShowCmd)
 	configCmd.AddCommand(configSetCmd)
 	configCmd.AddCommand(configEditCmd)
+}
+
+func runConfigMenu(cmd *cobra.Command, args []string) error {
+	if cfg == nil {
+		var err error
+		cfg, err = config.Load("")
+		if err != nil {
+			return err
+		}
+	}
+
+	availablePlayers := player.GetAvailablePlayers()
+	if len(availablePlayers) == 0 {
+		availablePlayers = []string{"mpv", "vlc", "ffplay"}
+	}
+
+	return ui.ConfigMenu(
+		availablePlayers,
+		cfg,
+		func() {
+			fmt.Printf("Player:     %s\n", cfg.Player)
+			fmt.Printf("Engine:     %s:%d\n", cfg.Engine.Host, cfg.Engine.Port)
+			fmt.Printf("Timeout:    %s\n", cfg.Timeout)
+			fmt.Printf("HLS:        %v\n", cfg.HLS)
+			fmt.Printf("Verbose:    %v\n", cfg.Verbose)
+			fmt.Println()
+		},
+		func() {
+			if err := ui.ConfigEditor(availablePlayers, cfg); err != nil {
+				fmt.Fprintln(os.Stderr, "Error:", err)
+				return
+			}
+			if err := cfg.Save(); err != nil {
+				fmt.Fprintln(os.Stderr, "Error saving config:", err)
+			}
+		},
+		func() {
+			fmt.Println("Usage: aceplay config set <key> <value>")
+			fmt.Println("Example: aceplay config set player vlc")
+		},
+	)
 }
 
 func runConfigShow(cmd *cobra.Command, args []string) error {
