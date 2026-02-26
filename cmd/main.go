@@ -139,6 +139,7 @@ func init() {
 	rootCmd.AddCommand(installCmd)
 	rootCmd.AddCommand(registerProtocolCmd)
 	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(interactiveCmd)
 }
 
 func initConfig() {
@@ -277,6 +278,7 @@ func runPlay(cmd *cobra.Command, args []string) error {
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Configuration management",
+	RunE:  runConfigMenu,
 }
 
 var configShowCmd = &cobra.Command{
@@ -292,9 +294,60 @@ var configSetCmd = &cobra.Command{
 	RunE:  runConfigSet,
 }
 
+var configEditCmd = &cobra.Command{
+	Use:   "edit",
+	Short: "Edit configuration interactively",
+	Long:  "Open an interactive menu to configure aceplay settings",
+	RunE:  runConfigEdit,
+}
+
 func init() {
 	configCmd.AddCommand(configShowCmd)
 	configCmd.AddCommand(configSetCmd)
+	configCmd.AddCommand(configEditCmd)
+}
+
+func runConfigMenu(cmd *cobra.Command, args []string) error {
+	ui.PrintLogo()
+
+	if cfg == nil {
+		var err error
+		cfg, err = config.Load("")
+		if err != nil {
+			return err
+		}
+	}
+
+	availablePlayers := player.GetAvailablePlayers()
+	if len(availablePlayers) == 0 {
+		availablePlayers = []string{"mpv", "vlc", "ffplay"}
+	}
+
+	return ui.ConfigMenu(
+		availablePlayers,
+		cfg,
+		func() {
+			fmt.Printf("Player:     %s\n", cfg.Player)
+			fmt.Printf("Engine:     %s:%d\n", cfg.Engine.Host, cfg.Engine.Port)
+			fmt.Printf("Timeout:    %s\n", cfg.Timeout)
+			fmt.Printf("HLS:        %v\n", cfg.HLS)
+			fmt.Printf("Verbose:    %v\n", cfg.Verbose)
+			fmt.Println()
+		},
+		func() {
+			if err := ui.ConfigEditor(availablePlayers, cfg); err != nil {
+				fmt.Fprintln(os.Stderr, "Error:", err)
+				return
+			}
+			if err := cfg.Save(); err != nil {
+				fmt.Fprintln(os.Stderr, "Error saving config:", err)
+			}
+		},
+		func() {
+			fmt.Println("Usage: aceplay config set <key> <value>")
+			fmt.Println("Example: aceplay config set player vlc")
+		},
+	)
 }
 
 func runConfigShow(cmd *cobra.Command, args []string) error {
@@ -355,6 +408,31 @@ func runConfigSet(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println(styles.Success.Render("✓ Configuration updated"))
+
+	return nil
+}
+
+func runConfigEdit(cmd *cobra.Command, args []string) error {
+	if cfg == nil {
+		var err error
+		cfg, err = config.Load("")
+		if err != nil {
+			return err
+		}
+	}
+
+	availablePlayers := player.GetAvailablePlayers()
+	if len(availablePlayers) == 0 {
+		availablePlayers = []string{"mpv", "vlc", "ffplay"}
+	}
+
+	if err := ui.ConfigEditor(availablePlayers, cfg); err != nil {
+		return err
+	}
+
+	if err := cfg.Save(); err != nil {
+		return fmt.Errorf("failed to save config: %w", err)
+	}
 
 	return nil
 }
@@ -440,10 +518,31 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Show version information",
 	Run: func(cmd *cobra.Command, args []string) {
+		ui.PrintLogo()
 		fmt.Println(styles.Title.Render("Aceplay"))
 		fmt.Printf("Version:    %s\n", version)
 		fmt.Printf("Commit:     %s\n", commit)
 		fmt.Printf("Date:       %s\n", date)
 		fmt.Printf("Platform:   %s/%s\n", runtime.GOOS, runtime.GOARCH)
 	},
+}
+
+var interactiveCmd = &cobra.Command{
+	Use:   "interactive",
+	Short: "Open interactive configuration menu",
+	Long: `Open an interactive TUI to configure aceplay settings.
+	
+This command provides a user-friendly interface to:
+• Select your preferred video player (mpv, vlc, ffplay)
+• Configure acestream-engine connection settings
+• Set timeout and playback options
+• Enable/disable HLS and verbose mode
+
+Example:
+  aceplay interactive`,
+	RunE: runInteractive,
+}
+
+func runInteractive(cmd *cobra.Command, args []string) error {
+	return runConfigEdit(cmd, args)
 }

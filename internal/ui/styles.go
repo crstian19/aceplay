@@ -5,16 +5,19 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/charmbracelet/lipgloss"
 )
 
-// PrintLogo prints the logo using chafa
 func PrintLogo() {
 	possiblePaths := []string{
 		"logo.png",
+		"./logo.png",
+		"../logo.png",
 		"/usr/share/aceplay/logo.png",
 		"/usr/local/share/aceplay/logo.png",
+		filepath.Join(filepath.Dir(os.Args[0]), "logo.png"),
 	}
 
 	var logoPath string
@@ -30,12 +33,9 @@ func PrintLogo() {
 	}
 
 	cmd := exec.Command("chafa", "-s", "30x20", logoPath)
-	output, err := cmd.Output()
-	if err != nil {
-		return
-	}
-
-	print(string(output))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	_ = cmd.Run()
 }
 
 // Theme colors
