@@ -26,6 +26,11 @@ release:
     name: aceplay
   draft: false
   prerelease: auto
+  footer: |
+    ## Changelog
+    See [CHANGELOG.md](https://github.com/crstian19/aceplay/blob/main/CHANGELOG.md) for full details.
+  extra_files:
+    - glob: CHANGELOG.md
 
 nfpms:
   - id: deb
