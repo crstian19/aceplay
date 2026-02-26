@@ -2,6 +2,7 @@
 package ui
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 
@@ -221,4 +222,65 @@ func ProgressBar(percent float64, width int, styles Styles) string {
 	}
 
 	return bar
+}
+
+var StreamStatusStyles = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("#04B575")).
+	Bold(true)
+
+var StreamStatusBuffering = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("#FFA500")).
+	Bold(true)
+
+var StreamStatusError = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("#FF6B6B")).
+	Bold(true)
+
+var StreamStatsLabel = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("#808080"))
+
+var StreamStatsValue = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("#FAFAFA")).
+	Bold(true)
+
+var StreamPeersValue = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("#4ECDC4")).
+	Bold(true)
+
+// RenderStreamStatus renders the stream status in a nice format
+func RenderStreamStatus(status string, downloadSpeed int64, uploadSpeed int64, peers int) string {
+	// Format speeds
+	downStr := formatSpeed(downloadSpeed)
+	upStr := formatSpeed(uploadSpeed)
+
+	// Status color
+	var statusStyle lipgloss.Style
+	switch status {
+	case "dl", "prebuf":
+		statusStyle = StreamStatusStyles
+	case "wait", "check", "loading":
+		statusStyle = StreamStatusBuffering
+	case "error":
+		statusStyle = StreamStatusError
+	default:
+		statusStyle = StreamStatusStyles
+	}
+
+	// Status display
+	statusDisplay := statusStyle.Render("● " + status)
+
+	return statusDisplay + "  " +
+		StreamStatsLabel.Render("down:") + " " + StreamStatsValue.Render(downStr) + "  " +
+		StreamStatsLabel.Render("up:") + " " + StreamStatsValue.Render(upStr) + "  " +
+		StreamStatsLabel.Render("peers:") + " " + StreamPeersValue.Render(fmt.Sprintf("%d", peers))
+}
+
+func formatSpeed(bytesPerSec int64) string {
+	if bytesPerSec < 1024 {
+		return fmt.Sprintf("%d B/s", bytesPerSec)
+	}
+	if bytesPerSec < 1024*1024 {
+		return fmt.Sprintf("%.1f KB/s", float64(bytesPerSec)/1024)
+	}
+	return fmt.Sprintf("%.1f MB/s", float64(bytesPerSec)/(1024*1024))
 }
