@@ -3,7 +3,6 @@ package player
 import (
 	"os"
 	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,20 +10,12 @@ import (
 )
 
 func TestNewPlayer(t *testing.T) {
-	// Create fake executable for tests
 	tempDir := t.TempDir()
 	fakeExecutable := filepath.Join(tempDir, "mpv")
 
-	var err error
-	if runtime.GOOS == "windows" {
-		fakeExecutable += ".exe"
-		err = os.WriteFile(fakeExecutable, []byte("fake mpv"), 0755)
-	} else {
-		err = os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho fake mpv"), 0755)
-	}
+	err := os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho fake mpv"), 0755)
 	require.NoError(t, err)
 
-	// Add to PATH
 	originalPath := os.Getenv("PATH")
 	os.Setenv("PATH", tempDir+string(filepath.ListSeparator)+originalPath)
 	defer os.Setenv("PATH", originalPath)
@@ -43,16 +34,10 @@ func TestNewPlayer_NotFound(t *testing.T) {
 }
 
 func TestIsAvailable(t *testing.T) {
-	// Create fake executable
 	tempDir := t.TempDir()
 	fakeExecutable := filepath.Join(tempDir, "vlc")
 
-	if runtime.GOOS == "windows" {
-		fakeExecutable += ".exe"
-		os.WriteFile(fakeExecutable, []byte("fake vlc"), 0755)
-	} else {
-		os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho fake vlc"), 0755)
-	}
+	os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho fake vlc"), 0755)
 
 	originalPath := os.Getenv("PATH")
 	os.Setenv("PATH", tempDir+string(filepath.ListSeparator)+originalPath)
@@ -63,15 +48,11 @@ func TestIsAvailable(t *testing.T) {
 }
 
 func TestGetAvailablePlayers(t *testing.T) {
-	// Create fake executables for some players
 	tempDir := t.TempDir()
 
 	players := []string{"mpv", "vlc"}
 	for _, p := range players {
 		exe := filepath.Join(tempDir, p)
-		if runtime.GOOS == "windows" {
-			exe += ".exe"
-		}
 		os.WriteFile(exe, []byte("fake"), 0755)
 	}
 
@@ -122,12 +103,8 @@ func TestGetDefaultArgs(t *testing.T) {
 }
 
 func TestPlayer_SetArgs(t *testing.T) {
-	// Create fake executable
 	tempDir := t.TempDir()
 	fakeExecutable := filepath.Join(tempDir, "mpv")
-	if runtime.GOOS == "windows" {
-		fakeExecutable += ".exe"
-	}
 	os.WriteFile(fakeExecutable, []byte("fake"), 0755)
 
 	originalPath := os.Getenv("PATH")
@@ -137,18 +114,13 @@ func TestPlayer_SetArgs(t *testing.T) {
 	player, err := NewPlayer("mpv")
 	require.NoError(t, err)
 
-	// Set custom arguments
 	customArgs := []string{"--fs", "--no-border"}
 	player.SetArgs(customArgs)
 }
 
 func TestPlayer_AddArgs(t *testing.T) {
-	// Create fake executable
 	tempDir := t.TempDir()
 	fakeExecutable := filepath.Join(tempDir, "mpv")
-	if runtime.GOOS == "windows" {
-		fakeExecutable += ".exe"
-	}
 	os.WriteFile(fakeExecutable, []byte("fake"), 0755)
 
 	originalPath := os.Getenv("PATH")
@@ -158,25 +130,16 @@ func TestPlayer_AddArgs(t *testing.T) {
 	player, err := NewPlayer("mpv")
 	require.NoError(t, err)
 
-	// Add arguments
 	player.AddArgs("--fs", "--no-border")
 }
 
 func TestFindExecutable(t *testing.T) {
-	// Create fake executable
 	tempDir := t.TempDir()
 	fakeExecutable := filepath.Join(tempDir, "testplayer")
 
-	var err error
-	if runtime.GOOS == "windows" {
-		fakeExecutable += ".exe"
-		err = os.WriteFile(fakeExecutable, []byte("fake"), 0755)
-	} else {
-		err = os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho test"), 0755)
-	}
+	err := os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho test"), 0755)
 	require.NoError(t, err)
 
-	// Add to PATH
 	originalPath := os.Getenv("PATH")
 	os.Setenv("PATH", tempDir+string(filepath.ListSeparator)+originalPath)
 	defer os.Setenv("PATH", originalPath)

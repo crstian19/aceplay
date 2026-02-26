@@ -7,8 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
-	"strings"
 	"time"
 )
 
@@ -43,22 +41,10 @@ func NewPlayer(name string) (*Player, error) {
 
 // findExecutable looks for the player executable in PATH
 func findExecutable(name string) (string, error) {
-	// Try to find directly first
 	if path, err := exec.LookPath(name); err == nil {
 		return path, nil
 	}
 
-	// On Windows, add extensions
-	if runtime.GOOS == "windows" {
-		extensions := []string{".exe", ".cmd", ".bat"}
-		for _, ext := range extensions {
-			if path, err := exec.LookPath(name + ext); err == nil {
-				return path, nil
-			}
-		}
-	}
-
-	// Common paths by operating system
 	commonPaths := getCommonPaths(name)
 	for _, path := range commonPaths {
 		if _, err := os.Stat(path); err == nil {
@@ -71,52 +57,11 @@ func findExecutable(name string) (string, error) {
 
 // getCommonPaths returns common paths where the player might be installed
 func getCommonPaths(name string) []string {
-	var paths []string
-
-	switch runtime.GOOS {
-	case "darwin":
-		// macOS
-		paths = append(paths,
-			filepath.Join("/Applications", fmt.Sprintf("%s.app", strings.Title(name)), "Contents", "MacOS", name),
-			filepath.Join("/usr/local", "bin", name),
-			filepath.Join("/opt", "homebrew", "bin", name),
-		)
-	case "windows":
-		// Windows
-		programFiles := os.Getenv("ProgramFiles")
-		if programFiles == "" {
-			programFiles = `C:\Program Files`
-		}
-		programFilesX86 := os.Getenv("ProgramFiles(x86)")
-		if programFilesX86 == "" {
-			programFilesX86 = `C:\Program Files (x86)`
-		}
-
-		switch name {
-		case PlayerVLC:
-			paths = append(paths,
-				filepath.Join(programFiles, "VideoLAN", "VLC", "vlc.exe"),
-				filepath.Join(programFilesX86, "VideoLAN", "VLC", "vlc.exe"),
-			)
-		case PlayerMPV:
-			paths = append(paths,
-				filepath.Join(programFiles, "mpv", "mpv.exe"),
-				filepath.Join(programFilesX86, "mpv", "mpv.exe"),
-			)
-		case PlayerFFplay:
-			paths = append(paths,
-				filepath.Join(programFiles, "ffmpeg", "bin", "ffplay.exe"),
-				filepath.Join(programFilesX86, "ffmpeg", "bin", "ffplay.exe"),
-			)
-		}
-	default:
-		// Linux and other Unix
-		paths = append(paths,
-			filepath.Join("/usr", "bin", name),
-			filepath.Join("/usr", "local", "bin", name),
-			filepath.Join("/opt", name, "bin", name),
-			filepath.Join(os.Getenv("HOME"), ".local", "bin", name),
-		)
+	paths := []string{
+		filepath.Join("/usr", "bin", name),
+		filepath.Join("/usr", "local", "bin", name),
+		filepath.Join("/opt", name, "bin", name),
+		filepath.Join(os.Getenv("HOME"), ".local", "bin", name),
 	}
 
 	return paths

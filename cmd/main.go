@@ -337,9 +337,7 @@ var registerProtocolCmd = &cobra.Command{
 This allows you to click acestream:// links in your browser and have
 Aceplay automatically open and play them.
 
-On Linux, this uses xdg-utils.
-On macOS, this uses the defaults system.
-On Windows, this modifies the registry.`,
+On Linux, this uses xdg-utils.`,
 	RunE: runRegisterProtocol,
 }
 
@@ -361,16 +359,7 @@ func runRegisterProtocol(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to get executable path: %w", err)
 	}
 
-	switch runtime.GOOS {
-	case "linux":
-		return registerLinux(execPath)
-	case "darwin":
-		return registerMacOS(execPath)
-	case "windows":
-		return registerWindows(execPath)
-	default:
-		return fmt.Errorf("unsupported platform: %s", runtime.GOOS)
-	}
+	return registerLinux(execPath)
 }
 
 func registerLinux(execPath string) error {
@@ -405,90 +394,6 @@ Categories=Network;Video;
 	}
 
 	fmt.Println(styles.Success.Render("✓ Protocol handler registered successfully!"))
-	fmt.Println(styles.MutedText.Render("  You can now click acestream:// links in your browser."))
-
-	return nil
-}
-
-func registerMacOS(execPath string) error {
-	bundleID := "com.aceplay.app"
-
-	plist := fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>CFBundleIdentifier</key>
-    <string>%s</string>
-    <key>CFBundleName</key>
-    <string>Aceplay</string>
-    <key>CFBundleURLTypes</key>
-    <array>
-        <dict>
-            <key>CFBundleURLName</key>
-            <string>com.aceplay.acestream</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>acestream</string>
-            </array>
-        </dict>
-    </array>
-</dict>
-</plist>`, bundleID)
-
-	prefPath := filepath.Join(os.Getenv("HOME"), "Library", "Preferences", bundleID+".plist")
-	if err := os.WriteFile(prefPath, []byte(plist), 0644); err != nil {
-		return fmt.Errorf("failed to write plist: %w", err)
-	}
-
-	fmt.Println(styles.Success.Render("✓ Protocol handler registered!"))
-	fmt.Println(styles.MutedText.Render("  Restart your browser to use acestream:// links."))
-
-	return nil
-}
-
-func registerWindows(execPath string) error {
-	urlProtocol := `Windows Registry Editor Version 5.00
-
-[HKEY_CLASSES_ROOT\acestream]
-@="URL:Ace Stream Protocol"
-"URL Protocol"=""
-
-[HKEY_CLASSES_ROOT\acestream\DefaultIcon]
-@="%s,0"
-
-[HKEY_CLASSES_ROOT\acestream\shell]
-
-[HKEY_CLASSES_ROOT\acestream\shell\open]
-
-[HKEY_CLASSES_ROOT\acestream\shell\open\command]
-@="\"%s\" play \"%%1\""
-`
-
-	// Backslashes in .reg string values must be escaped as \\
-	escapedPath := strings.ReplaceAll(execPath, `\`, `\\`)
-	regContent := fmt.Sprintf(urlProtocol, escapedPath, escapedPath)
-	regFile, err := os.CreateTemp("", "aceplay-*.reg")
-	if err != nil {
-		return fmt.Errorf("failed to create temp file: %w", err)
-	}
-	regFileName := regFile.Name()
-	defer func() { _ = os.Remove(regFileName) }()
-
-	if _, err := regFile.WriteString(regContent); err != nil {
-		return fmt.Errorf("failed to write reg file: %w", err)
-	}
-	if err := regFile.Close(); err != nil {
-		return fmt.Errorf("failed to close reg file: %w", err)
-	}
-
-	fmt.Println(styles.Warning.Render("⚠ Administrator privileges may be required."))
-	fmt.Println(styles.Info.Render("ℹ Running registry file..."))
-
-	if err := runCmd("reg", "import", regFile.Name()); err != nil {
-		return fmt.Errorf("failed to import registry: %w", err)
-	}
-
-	fmt.Println(styles.Success.Render("✓ Protocol handler registered!"))
 	fmt.Println(styles.MutedText.Render("  You can now click acestream:// links in your browser."))
 
 	return nil

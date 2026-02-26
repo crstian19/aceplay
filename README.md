@@ -25,6 +25,10 @@
 
 ---
 
+> **Note**: Aceplay is **Linux only**. For macOS and Windows, use the official [Ace Stream](https://acestream.org/) applications.
+
+---
+
 A modern reimplementation of `acestream-launcher` in **Go** with an elegant visual interface using the Charm ecosystem.
 
 ## Features
@@ -39,6 +43,8 @@ A modern reimplementation of `acestream-launcher` in **Go** with an elegant visu
 - **Browser integration**: Open `acestream://` links directly from your browser
 
 ## Installation
+
+> **Requirements**: Linux only. Ace Stream engine is only available on Linux.
 
 ### From AUR (Arch Linux)
 
