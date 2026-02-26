@@ -112,26 +112,23 @@ func GetAvailablePlayers() []string {
 	return available
 }
 
-// Play starts playback of a URL
+// Play starts playback of a URL and waits for it to finish
 func (p *Player) Play(ctx context.Context, streamURL string) error {
 	if p.executable == "" {
 		return fmt.Errorf("player not initialized")
 	}
 
-	// Prepare arguments
 	args := append(p.args, streamURL)
 
-	// Create command
 	cmd := exec.CommandContext(ctx, p.executable, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	// Start playback
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("error starting player: %w", err)
 	}
 
-	return nil
+	return cmd.Wait()
 }
 
 // PlayAndWait starts playback and waits for it to finish

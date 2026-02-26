@@ -247,6 +247,7 @@ func runPlay(cmd *cobra.Command, args []string) error {
 			case <-ticker.C:
 				stats, err := acestreamClient.GetStats(aceURL.ContentID)
 				if err != nil {
+					fmt.Print("\r" + styles.MutedText.Render("Waiting for stream stats...") + "    ")
 					continue
 				}
 
@@ -257,6 +258,7 @@ func runPlay(cmd *cobra.Command, args []string) error {
 					stats.Peers,
 				)
 				fmt.Print("\r" + line + "    ")
+				fmt.Fprint(os.Stdout, "\033[0m")
 			}
 		}
 	}()
@@ -265,9 +267,18 @@ func runPlay(cmd *cobra.Command, args []string) error {
 		logger.Info("Launching player", "player", playerInstance.Executable())
 	}
 
-	if err := playerInstance.Play(context.Background(), streamURL); err != nil {
-		return fmt.Errorf("playback failed: %w", err)
-	}
+	playerCtx, playerCancel := context.WithCancel(context.Background())
+	defer playerCancel()
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		playerInstance.Play(playerCtx, streamURL)
+	}()
+
+	<-done
+
+	statsCancel()
 
 	fmt.Println()
 
