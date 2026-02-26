@@ -3,7 +3,6 @@ package ui
 import (
 	"testing"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,14 +28,14 @@ func TestDefaultStyles(t *testing.T) {
 
 func TestDefaultTheme(t *testing.T) {
 	// Verify theme has defined colors
-	assert.NotEqual(t, lipgloss.Color(""), DefaultTheme.Primary)
-	assert.NotEqual(t, lipgloss.Color(""), DefaultTheme.Secondary)
-	assert.NotEqual(t, lipgloss.Color(""), DefaultTheme.Success)
-	assert.NotEqual(t, lipgloss.Color(""), DefaultTheme.Error)
-	assert.NotEqual(t, lipgloss.Color(""), DefaultTheme.Warning)
-	assert.NotEqual(t, lipgloss.Color(""), DefaultTheme.Info)
-	assert.NotEqual(t, lipgloss.Color(""), DefaultTheme.Muted)
-	assert.NotEqual(t, lipgloss.Color(""), DefaultTheme.Text)
+	assert.NotNil(t, DefaultTheme.Primary)
+	assert.NotNil(t, DefaultTheme.Secondary)
+	assert.NotNil(t, DefaultTheme.Success)
+	assert.NotNil(t, DefaultTheme.Error)
+	assert.NotNil(t, DefaultTheme.Warning)
+	assert.NotNil(t, DefaultTheme.Info)
+	assert.NotNil(t, DefaultTheme.Muted)
+	assert.NotNil(t, DefaultTheme.Text)
 }
 
 func TestHeader(t *testing.T) {

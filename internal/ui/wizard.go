@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/huh"
-	"github.com/charmbracelet/lipgloss"
 
 	"github.com/crstian19/aceplay/internal/config"
 )

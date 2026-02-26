@@ -3,11 +3,12 @@ package ui
 
 import (
 	"fmt"
+	"image/color"
 	"os"
 	"os/exec"
 	"path/filepath"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 )
 
 func PrintLogo() {
@@ -40,15 +41,15 @@ func PrintLogo() {
 
 // Theme colors
 type Theme struct {
-	Primary    lipgloss.Color
-	Secondary  lipgloss.Color
-	Success    lipgloss.Color
-	Warning    lipgloss.Color
-	Error      lipgloss.Color
-	Info       lipgloss.Color
-	Muted      lipgloss.Color
-	Text       lipgloss.Color
-	Background lipgloss.Color
+	Primary    color.Color
+	Secondary  color.Color
+	Success    color.Color
+	Warning    color.Color
+	Error      color.Color
+	Info       color.Color
+	Muted      color.Color
+	Text       color.Color
+	Background color.Color
 }
 
 // DefaultTheme is the default aceplay theme
