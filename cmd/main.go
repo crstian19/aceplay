@@ -308,6 +308,8 @@ func init() {
 }
 
 func runConfigMenu(cmd *cobra.Command, args []string) error {
+	ui.PrintLogo()
+
 	if cfg == nil {
 		var err error
 		cfg, err = config.Load("")
@@ -516,6 +518,7 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Show version information",
 	Run: func(cmd *cobra.Command, args []string) {
+		ui.PrintLogo()
 		fmt.Println(styles.Title.Render("Aceplay"))
 		fmt.Printf("Version:    %s\n", version)
 		fmt.Printf("Commit:     %s\n", commit)

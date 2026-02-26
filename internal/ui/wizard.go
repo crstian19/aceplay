@@ -327,7 +327,6 @@ func ConfigMenu(availablePlayers []string, currentConfig *config.Config, showCon
 	for {
 		fmt.Println()
 		fmt.Println(styles.Title.Render("⚙️  Aceplay Configuration"))
-		fmt.Println()
 
 		currentConfigStr := fmt.Sprintf(`Current Settings:
   🎬 Player:    %s
@@ -348,19 +347,18 @@ func ConfigMenu(availablePlayers []string, currentConfig *config.Config, showCon
 		form := huh.NewForm(
 			huh.NewGroup(
 				huh.NewNote().
-					Title("⚙️  Configuration Menu").
+					Title("Choose an option:").
 					Description(currentConfigStr+"\n\n"),
 
 				huh.NewSelect[int]().
 					Title("What would you like to do?").
 					Options(
-						huh.NewOption("👁️  View configuration", 0),
-						huh.NewOption("✏️  Edit all settings", 1),
-						huh.NewOption("🎬 Change player", 2),
-						huh.NewOption("🔌 Change engine host/port", 3),
-						huh.NewOption("⏱️  Change timeout", 4),
-						huh.NewOption("📺 Toggle HLS", 5),
-						huh.NewOption("❌ Exit", 6),
+						huh.NewOption("✏️  Edit all settings", 0),
+						huh.NewOption("🎬 Change player", 1),
+						huh.NewOption("🔌 Change engine host/port", 2),
+						huh.NewOption("⏱️  Change timeout", 3),
+						huh.NewOption("📺 Toggle HLS", 4),
+						huh.NewOption("❌ Exit", 5),
 					).
 					Value(&selected),
 			),
@@ -374,31 +372,26 @@ func ConfigMenu(availablePlayers []string, currentConfig *config.Config, showCon
 
 		switch selected {
 		case 0:
-			showConfig()
-			if !continuePrompt() {
-				return nil
-			}
-		case 1:
 			editConfig()
 			if !continuePrompt() {
 				return nil
 			}
-		case 2:
+		case 1:
 			runPlayerSelector(availablePlayers, currentConfig)
 			if !continuePrompt() {
 				return nil
 			}
-		case 3:
+		case 2:
 			runEngineConfig(currentConfig)
 			if !continuePrompt() {
 				return nil
 			}
-		case 4:
+		case 3:
 			runTimeoutSelector(currentConfig)
 			if !continuePrompt() {
 				return nil
 			}
-		case 5:
+		case 4:
 			currentConfig.HLS = !currentConfig.HLS
 			currentConfig.Save()
 			fmt.Println(styles.Success.Render("✓ HLS mode: " + renderBool(currentConfig.HLS)))
@@ -406,7 +399,7 @@ func ConfigMenu(availablePlayers []string, currentConfig *config.Config, showCon
 			if !continuePrompt() {
 				return nil
 			}
-		case 6:
+		case 5:
 			fmt.Println(styles.MutedText.Render("👋 Goodbye!"))
 			fmt.Println()
 			return nil
