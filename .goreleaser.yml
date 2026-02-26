@@ -1,0 +1,59 @@
+version: 2
+
+project_name: aceplay
+
+builds:
+  - id: aceplay
+    binary: aceplay
+    dir: cmd
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{ .Version }}
+      - -X main.commit={{ .Commit }}
+      - -X main.date={{ .Date }}
+
+checksum:
+  algorithm: sha256
+
+release:
+  github:
+    owner: crstian19
+    name: aceplay
+  draft: false
+  prerelease: auto
+
+nfpms:
+  - id: deb
+    package_name: aceplay
+    vendor: crstian19
+    homepage: https://github.com/crstian19/aceplay
+    maintainer: Crstian <crstian@example.com>
+    description: Play Ace Stream content
+    license: MIT
+    formats:
+      - deb
+    contents:
+      - src: aceplay.desktop
+        dst: usr/share/applications/aceplay.desktop
+      - src: LICENSE
+        dst: usr/share/doc/aceplay/copyright
+
+  - id: rpm
+    package_name: aceplay
+    vendor: crstian19
+    homepage: https://github.com/crstian19/aceplay
+    maintainer: Crstian <crstian@example.com>
+    description: Play Ace Stream content
+    license: MIT
+    formats:
+      - rpm
+    contents:
+      - src: aceplay.desktop
+        dst: usr/share/applications/aceplay.desktop
+      - src: LICENSE
+        dst: usr/share/doc/aceplay/copyright
