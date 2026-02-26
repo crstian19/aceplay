@@ -21,7 +21,7 @@ GOGET := $(GOCMD) get
 GOMOD := $(GOCMD) mod
 
 # Platforms for cross-compilation
-PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64
+PLATFORMS := linux/amd64 linux/arm64
 
 .PHONY: all build clean test coverage install uninstall deps tidy fmt vet lint release help
 
@@ -43,7 +43,6 @@ build-all: clean
 		GOOS=$$(echo $$platform | cut -d/ -f1); \
 		GOARCH=$$(echo $$platform | cut -d/ -f2); \
 		OUTPUT=$(DIST_DIR)/$(BINARY_NAME)-$$GOOS-$$GOARCH; \
-		if [ "$$GOOS" = "windows" ]; then OUTPUT="$$OUTPUT.exe"; fi; \
 		echo "  → $$GOOS/$$GOARCH..."; \
 		GOOS=$$GOOS GOARCH=$$GOARCH $(GOBUILD) $(LDFLAGS) -o $$OUTPUT ./$(CMD_DIR); \
 	done

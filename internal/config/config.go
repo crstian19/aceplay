@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 	"time"
 
 	"github.com/spf13/viper"
@@ -175,27 +174,13 @@ func (c *Config) Save() error {
 func getConfigDirs() []string {
 	var dirs []string
 
-	// XDG_CONFIG_HOME
 	if xdgConfig := os.Getenv("XDG_CONFIG_HOME"); xdgConfig != "" {
 		dirs = append(dirs, filepath.Join(xdgConfig, "aceplay"))
 	}
 
-	// Home directory
 	home, err := os.UserHomeDir()
 	if err == nil {
-		switch runtime.GOOS {
-		case "darwin":
-			// macOS
-			dirs = append(dirs, filepath.Join(home, "Library", "Application Support", "aceplay"))
-		case "windows":
-			// Windows
-			if appData := os.Getenv("APPDATA"); appData != "" {
-				dirs = append(dirs, filepath.Join(appData, "aceplay"))
-			}
-		default:
-			// Linux and other Unix
-			dirs = append(dirs, filepath.Join(home, ".config", "aceplay"))
-		}
+		dirs = append(dirs, filepath.Join(home, ".config", "aceplay"))
 	}
 
 	return dirs
