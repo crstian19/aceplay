@@ -60,7 +60,7 @@ jobs:
       run: make build
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: aceplay-linux-amd64
         path: build/aceplay
