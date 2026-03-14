@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	charm.land/lipgloss/v2 v2.0.0
 	github.com/charmbracelet/huh v0.8.0
-	github.com/charmbracelet/log v0.4.2
+	github.com/charmbracelet/log/v2 v2.0.0
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
