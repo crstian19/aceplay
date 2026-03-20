@@ -289,6 +289,102 @@ aceplay/
 
 ---
 
+## Releasing a New Version
+
+### Prerequisites
+
+1. Ensure all changes are committed on `main`
+2. All tests pass: `make test`
+3. Build works: `make build`
+
+### Steps
+
+1. **Update CHANGELOG.md** with the new version:
+   ```bash
+   # Add new section at the top (after the header comments)
+   ## [X.Y.Z] - YYYY-MM-DD
+   
+   ### Changed
+   - ...
+   
+   ### Fixed
+   - ...
+   ```
+
+2. **Commit the changelog:**
+   ```bash
+   git add CHANGELOG.md
+   git commit -m "docs: update changelog for vX.Y.Z"
+   ```
+
+3. **Create and push the tag:**
+   ```bash
+   git tag -a vX.Y.Z -m "Release vX.Y.Z"
+   git push origin main
+   git push origin vX.Y.Z
+   ```
+
+4. **Monitor the release workflow:**
+   - GoReleaser creates the GitHub release with binaries
+   - AUR workflow publishes to Arch Linux AUR
+   - Check: https://github.com/crstian19/aceplay/actions
+
+### Updating Charm Ecosystem Dependencies (Major Versions)
+
+When charm.land libraries release v2 (breaking changes), additional steps are required:
+
+#### Import Path Changes
+
+| Library | Old Import | New Import |
+|---------|-----------|------------|
+| huh | `github.com/charmbracelet/huh` | `charm.land/huh/v2` |
+| log | `github.com/charmbracelet/log` | `charm.land/log/v2` |
+| lipgloss | `charm.land/lipgloss/v2` | (same) |
+
+#### Code Changes Required
+
+**1. Update go.mod:**
+```diff
+-   github.com/charmbracelet/huh v0.8.0
+-   github.com/charmbracelet/log v0.4.2
++   charm.land/huh/v2 v2.0.x
++   charm.land/log/v2 v2.0.0
+```
+
+**2. Update imports in Go files:**
+```diff
+-   "github.com/charmbracelet/huh"
++   "charm.land/huh/v2"
+
+-   "github.com/charmbracelet/log"
++   "charm.land/log/v2"
++   "github.com/charmbracelet/colorprofile"
+```
+
+**3. Update API calls for log v2:**
+```diff
+-   log.NewWithOptions(os.Stderr, log.Options{...})
++   log.NewWithOptions(colorprofile.NewWriter(os.Stderr, os.Environ()), log.Options{...})
+```
+
+**4. Run go mod tidy:**
+```bash
+go mod tidy
+```
+
+**5. Verify:**
+```bash
+go build ./...
+make test
+```
+
+#### Common Issues
+
+- **Renovate only updates go.mod**: When Renovate creates PRs for major version bumps, it only updates `go.mod` but NOT the source files. You must manually update the imports and run `go mod tidy`.
+- **Import path mismatch**: Some libraries changed from `github.com/charmbracelet/*` to `charm.land/*/*`. Check the new import path in go.mod after running `go mod tidy`.
+
+---
+
 ## Resources
 
 - [Go Documentation](https://go.dev/doc/)
