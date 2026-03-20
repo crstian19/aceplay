@@ -4,7 +4,8 @@ package ui
 import (
 	"os"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
+	"github.com/charmbracelet/colorprofile"
 )
 
 // Logger is an interface for logging
@@ -29,7 +30,7 @@ func NewLogger(verbose bool) Logger {
 		level = log.DebugLevel
 	}
 
-	l := log.NewWithOptions(os.Stderr, log.Options{
+	l := log.NewWithOptions(colorprofile.NewWriter(os.Stderr, os.Environ()), log.Options{
 		Level:           level,
 		ReportCaller:    verbose,
 		ReportTimestamp: true,
