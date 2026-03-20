@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-03-20
+
+### Security
+- Updated AUR SSH key configuration
+
+## [0.4.0] - 2026-03-20
+
+### Changed
+- Updated charm.land libraries to v2 (breaking changes in import paths)
+  - `charm.land/huh/v2` (was `github.com/charmbracelet/huh`)
+  - `charm.land/log/v2` (was `github.com/charmbracelet/log`)
+  - `charm.land/lipgloss/v2` (already updated)
+- Updated GitHub Actions to latest versions
+
 ## [0.3.3] - 2026-02-28
 
 ### Fixed
