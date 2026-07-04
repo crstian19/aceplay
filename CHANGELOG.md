@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3] - 2026-07-04
+
+### Changed
+- Updated charm.land/lipgloss/v2 to v2.0.3 (fixes background color query hang)
+- Updated indirect dependencies (charmbracelet/x/ansi, go-colorful, go-runewidth, golang.org/x/sys)
+- Configured Renovate for automated dependency updates
+
+### Fixed
+- Resolved golangci-lint errcheck and staticcheck issues across codebase and tests
+
 ## [0.4.2] - 2026-03-20
 
 ### Fixed
