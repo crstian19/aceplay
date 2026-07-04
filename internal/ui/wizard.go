@@ -377,23 +377,31 @@ func ConfigMenu(availablePlayers []string, currentConfig *config.Config, showCon
 				return nil
 			}
 		case 1:
-			runPlayerSelector(availablePlayers, currentConfig)
+			if err := runPlayerSelector(availablePlayers, currentConfig); err != nil {
+				return err
+			}
 			if !continuePrompt() {
 				return nil
 			}
 		case 2:
-			runEngineConfig(currentConfig)
+			if err := runEngineConfig(currentConfig); err != nil {
+				return err
+			}
 			if !continuePrompt() {
 				return nil
 			}
 		case 3:
-			runTimeoutSelector(currentConfig)
+			if err := runTimeoutSelector(currentConfig); err != nil {
+				return err
+			}
 			if !continuePrompt() {
 				return nil
 			}
 		case 4:
 			currentConfig.HLS = !currentConfig.HLS
-			currentConfig.Save()
+			if err := currentConfig.Save(); err != nil {
+				return fmt.Errorf("failed to save config: %w", err)
+			}
 			fmt.Println(styles.Success.Render("✓ HLS mode: " + renderBool(currentConfig.HLS)))
 			fmt.Println()
 			if !continuePrompt() {
@@ -468,7 +476,9 @@ func runPlayerSelector(availablePlayers []string, currentConfig *config.Config) 
 	}
 
 	currentConfig.Player = player
-	currentConfig.Save()
+	if err := currentConfig.Save(); err != nil {
+		return fmt.Errorf("failed to save config: %w", err)
+	}
 	fmt.Println(styles.Success.Render("✓ Player set to: " + player))
 	fmt.Println()
 	return nil
@@ -500,9 +510,13 @@ func runEngineConfig(currentConfig *config.Config) error {
 		currentConfig.Engine.Host = host
 	}
 	if port != "" {
-		fmt.Sscanf(port, "%d", &currentConfig.Engine.Port)
+		if _, err := fmt.Sscanf(port, "%d", &currentConfig.Engine.Port); err != nil {
+			return fmt.Errorf("invalid port: %w", err)
+		}
 	}
-	currentConfig.Save()
+	if err := currentConfig.Save(); err != nil {
+		return fmt.Errorf("failed to save config: %w", err)
+	}
 	fmt.Println(styles.Success.Render("✓ Engine: " + currentConfig.Engine.Host + ":" + fmt.Sprintf("%d", currentConfig.Engine.Port)))
 	fmt.Println()
 	return nil
@@ -533,7 +547,9 @@ func runTimeoutSelector(currentConfig *config.Config) error {
 
 	if dur, err := time.ParseDuration(timeout); err == nil {
 		currentConfig.Timeout = dur
-		currentConfig.Save()
+		if err := currentConfig.Save(); err != nil {
+			return fmt.Errorf("failed to save config: %w", err)
+		}
 	}
 	fmt.Println(styles.Success.Render("✓ Timeout: " + currentConfig.Timeout.String()))
 	fmt.Println()

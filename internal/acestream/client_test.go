@@ -89,7 +89,7 @@ func TestClient_IsRunning(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/webui/app/127323294/template/api" {
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+			_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 			return
 		}
 		w.WriteHeader(http.StatusNotFound)
@@ -181,7 +181,7 @@ func TestClient_GetStats(t *testing.T) {
 			Peers:         25,
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(stats)
+		_ = json.NewEncoder(w).Encode(stats)
 	}))
 	defer server.Close()
 
@@ -202,7 +202,7 @@ func TestClient_GetStats_QueryString(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Simulate query string response
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("status=dl&progress=75.5&download_speed=2048000&peers=50"))
+		_, _ = w.Write([]byte("status=dl&progress=75.5&download_speed=2048000&peers=50"))
 	}))
 	defer server.Close()
 
@@ -284,7 +284,7 @@ func TestClient_GetEngineInfo(t *testing.T) {
 			"version":  "3.1.74",
 			"platform": "linux",
 		}
-		json.NewEncoder(w).Encode(info)
+		_ = json.NewEncoder(w).Encode(info)
 	}))
 	defer server.Close()
 

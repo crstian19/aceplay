@@ -1,6 +1,7 @@
 package player
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -16,9 +17,7 @@ func TestNewPlayer(t *testing.T) {
 	err := os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho fake mpv"), 0755)
 	require.NoError(t, err)
 
-	originalPath := os.Getenv("PATH")
-	os.Setenv("PATH", tempDir+string(filepath.ListSeparator)+originalPath)
-	defer os.Setenv("PATH", originalPath)
+	t.Setenv("PATH", tempDir+string(filepath.ListSeparator)+os.Getenv("PATH"))
 
 	player, err := NewPlayer("mpv")
 	require.NoError(t, err)
@@ -37,11 +36,9 @@ func TestIsAvailable(t *testing.T) {
 	tempDir := t.TempDir()
 	fakeExecutable := filepath.Join(tempDir, "vlc")
 
-	os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho fake vlc"), 0755)
+	require.NoError(t, os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho fake vlc"), 0755))
 
-	originalPath := os.Getenv("PATH")
-	os.Setenv("PATH", tempDir+string(filepath.ListSeparator)+originalPath)
-	defer os.Setenv("PATH", originalPath)
+	t.Setenv("PATH", tempDir+string(filepath.ListSeparator)+os.Getenv("PATH"))
 
 	assert.True(t, IsAvailable("vlc"))
 	assert.False(t, IsAvailable("nonexistent"))
@@ -53,12 +50,10 @@ func TestGetAvailablePlayers(t *testing.T) {
 	players := []string{"mpv", "vlc"}
 	for _, p := range players {
 		exe := filepath.Join(tempDir, p)
-		os.WriteFile(exe, []byte("fake"), 0755)
+		require.NoError(t, os.WriteFile(exe, []byte("fake"), 0755))
 	}
 
-	originalPath := os.Getenv("PATH")
-	os.Setenv("PATH", tempDir+string(filepath.ListSeparator)+originalPath)
-	defer os.Setenv("PATH", originalPath)
+	t.Setenv("PATH", tempDir+string(filepath.ListSeparator)+os.Getenv("PATH"))
 
 	available := GetAvailablePlayers()
 	assert.GreaterOrEqual(t, len(available), 2)
@@ -105,11 +100,9 @@ func TestGetDefaultArgs(t *testing.T) {
 func TestPlayer_SetArgs(t *testing.T) {
 	tempDir := t.TempDir()
 	fakeExecutable := filepath.Join(tempDir, "mpv")
-	os.WriteFile(fakeExecutable, []byte("fake"), 0755)
+	require.NoError(t, os.WriteFile(fakeExecutable, []byte("fake"), 0755))
 
-	originalPath := os.Getenv("PATH")
-	os.Setenv("PATH", tempDir+string(filepath.ListSeparator)+originalPath)
-	defer os.Setenv("PATH", originalPath)
+	t.Setenv("PATH", tempDir+string(filepath.ListSeparator)+os.Getenv("PATH"))
 
 	player, err := NewPlayer("mpv")
 	require.NoError(t, err)
@@ -121,11 +114,9 @@ func TestPlayer_SetArgs(t *testing.T) {
 func TestPlayer_AddArgs(t *testing.T) {
 	tempDir := t.TempDir()
 	fakeExecutable := filepath.Join(tempDir, "mpv")
-	os.WriteFile(fakeExecutable, []byte("fake"), 0755)
+	require.NoError(t, os.WriteFile(fakeExecutable, []byte("fake"), 0755))
 
-	originalPath := os.Getenv("PATH")
-	os.Setenv("PATH", tempDir+string(filepath.ListSeparator)+originalPath)
-	defer os.Setenv("PATH", originalPath)
+	t.Setenv("PATH", tempDir+string(filepath.ListSeparator)+os.Getenv("PATH"))
 
 	player, err := NewPlayer("mpv")
 	require.NoError(t, err)
@@ -140,9 +131,7 @@ func TestFindExecutable(t *testing.T) {
 	err := os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho test"), 0755)
 	require.NoError(t, err)
 
-	originalPath := os.Getenv("PATH")
-	os.Setenv("PATH", tempDir+string(filepath.ListSeparator)+originalPath)
-	defer os.Setenv("PATH", originalPath)
+	t.Setenv("PATH", tempDir+string(filepath.ListSeparator)+os.Getenv("PATH"))
 
 	found, err := findExecutable("testplayer")
 	require.NoError(t, err)
@@ -156,7 +145,7 @@ func TestFindExecutable_NotFound(t *testing.T) {
 
 func TestPlayer_Play_NotInitialized(t *testing.T) {
 	player := &Player{}
-	err := player.Play(nil, "http://example.com/stream")
+	err := player.Play(context.TODO(), "http://example.com/stream")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "not initialized")
 }

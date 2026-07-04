@@ -399,7 +399,7 @@ func (c *Client) WaitForStream(ctx context.Context, contentID string) (string, e
 	if err != nil {
 		return "", fmt.Errorf("error making request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// Check for redirect (status 302) - stream is ready
 	if resp.StatusCode == http.StatusFound {
