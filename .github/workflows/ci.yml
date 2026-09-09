@@ -43,7 +43,7 @@ jobs:
     - name: Run golangci-lint
       uses: golangci/golangci-lint-action@v9.3.0
       with:
-        version: v2.12.2
+        version: v2.13.2
         args: --timeout=5m
 
     # `go fmt ./...` rewrites files and always exits 0, so it can never fail a
