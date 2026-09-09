@@ -2,6 +2,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -110,7 +111,8 @@ func Load(configPath string) (*Config, error) {
 	// Try to read file
 	if err := v.ReadInConfig(); err != nil {
 		// Not an error if file doesn't exist
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+		var notFound viper.ConfigFileNotFoundError
+		if !errors.As(err, &notFound) {
 			return nil, fmt.Errorf("error reading configuration: %w", err)
 		}
 	}
@@ -142,7 +144,7 @@ func (c *Config) Save() error {
 	}
 
 	// Ensure directory exists
-	if err := os.MkdirAll(c.ConfigPath, 0755); err != nil {
+	if err := os.MkdirAll(c.ConfigPath, 0o750); err != nil {
 		return fmt.Errorf("error creating configuration directory: %w", err)
 	}
 
@@ -161,7 +163,8 @@ func (c *Config) Save() error {
 
 	if err := v.WriteConfig(); err != nil {
 		// If file doesn't exist, create it
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+		var notFound viper.ConfigFileNotFoundError
+		if errors.As(err, &notFound) {
 			return v.SafeWriteConfig()
 		}
 		return fmt.Errorf("error saving configuration: %w", err)

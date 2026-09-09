@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"time"
 )
 
@@ -118,8 +119,8 @@ func (p *Player) Play(ctx context.Context, streamURL string) error {
 		return fmt.Errorf("player not initialized")
 	}
 
-	// Prepare arguments
-	args := append(p.args, streamURL)
+	// Prepare arguments (never append into p.args: it is shared state)
+	args := slices.Concat(p.args, []string{streamURL})
 
 	// Create command
 	cmd := exec.CommandContext(ctx, p.executable, args...)
@@ -140,8 +141,8 @@ func (p *Player) PlayAndWait(ctx context.Context, streamURL string, timeout time
 		return fmt.Errorf("player not initialized")
 	}
 
-	// Prepare arguments
-	args := append(p.args, streamURL)
+	// Prepare arguments (never append into p.args: it is shared state)
+	args := slices.Concat(p.args, []string{streamURL})
 
 	// Create command with timeout
 	ctx, cancel := context.WithTimeout(ctx, timeout)

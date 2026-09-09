@@ -23,7 +23,7 @@ GOMOD := $(GOCMD) mod
 # Platforms for cross-compilation
 PLATFORMS := linux/amd64 linux/arm64
 
-.PHONY: all build clean test coverage install uninstall deps tidy fmt vet lint release help
+.PHONY: all build clean test coverage check install uninstall deps tidy fmt fmt-check vet lint release help
 
 # Default target
 all: test build
@@ -84,10 +84,20 @@ tidy:
 	$(GOMOD) tidy
 	$(GOMOD) verify
 
-## fmt: Format code
+## fmt: Format code (gofumpt + gci via golangci-lint)
 fmt:
 	@echo "📝 Formatting code..."
-	$(GOCMD) fmt ./...
+	@if command -v golangci-lint >/dev/null 2>&1; then \
+		golangci-lint fmt; \
+	else \
+		echo "⚠️  golangci-lint not installed, falling back to go fmt"; \
+		$(GOCMD) fmt ./...; \
+	fi
+
+## fmt-check: Fail if the code is not formatted (what CI runs)
+fmt-check:
+	@echo "📝 Checking formatting..."
+	golangci-lint fmt --diff
 
 ## vet: Analyze code with go vet
 vet:
@@ -103,6 +113,10 @@ lint:
 		echo "⚠️  golangci-lint not installed. Install with:"; \
 		echo "    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin"; \
 	fi
+
+## check: Run every check CI runs (format, lint, tests)
+check: fmt-check lint test
+	@echo "✅ All checks passed"
 
 ## install: Install binary in the system
 install: build

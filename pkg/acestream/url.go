@@ -1,4 +1,3 @@
-// Package acestream provides functionality for parsing AceStream URLs
 package acestream
 
 import (

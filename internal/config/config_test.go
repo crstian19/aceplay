@@ -58,7 +58,7 @@ func TestLoad(t *testing.T) {
 	// Create temporary directory
 	tempDir := t.TempDir()
 	configPath := filepath.Join(tempDir, "aceplay")
-	require.NoError(t, os.MkdirAll(configPath, 0755))
+	require.NoError(t, os.MkdirAll(configPath, 0o755))
 
 	// Create configuration file
 	configContent := `
@@ -72,7 +72,7 @@ engine:
   auto_start: true
 `
 	configFile := filepath.Join(configPath, "config.yaml")
-	err := os.WriteFile(configFile, []byte(configContent), 0644)
+	err := os.WriteFile(configFile, []byte(configContent), 0o644)
 	require.NoError(t, err)
 
 	// Load configuration
@@ -158,13 +158,13 @@ func TestLoad_InvalidConfig(t *testing.T) {
 	// Create invalid file
 	tempDir := t.TempDir()
 	configPath := filepath.Join(tempDir, "aceplay")
-	require.NoError(t, os.MkdirAll(configPath, 0755))
+	require.NoError(t, os.MkdirAll(configPath, 0o755))
 
 	configContent := `
 player: [invalid yaml structure
 `
 	configFile := filepath.Join(configPath, "config.yaml")
-	err := os.WriteFile(configFile, []byte(configContent), 0644)
+	err := os.WriteFile(configFile, []byte(configContent), 0o644)
 	require.NoError(t, err)
 
 	// Try to load

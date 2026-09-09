@@ -2,12 +2,13 @@
 package notify
 
 import (
+	"context"
 	"os/exec"
 )
 
 // Notifier defines the interface for notifications
 type Notifier interface {
-	Notify(title, message string) error
+	Notify(ctx context.Context, title, message string) error
 	IsAvailable() bool
 }
 
@@ -26,8 +27,8 @@ func (n *LibnotifyNotifier) IsAvailable() bool {
 }
 
 // Notify sends a notification using notify-send
-func (n *LibnotifyNotifier) Notify(title, message string) error {
-	cmd := exec.Command("notify-send",
+func (n *LibnotifyNotifier) Notify(ctx context.Context, title, message string) error {
+	cmd := exec.CommandContext(ctx, "notify-send",
 		"--app-name=aceplay",
 		"--icon=video-x-generic",
 		title,
@@ -55,6 +56,6 @@ func (n *NoopNotifier) IsAvailable() bool {
 }
 
 // Notify does nothing
-func (n *NoopNotifier) Notify(title, message string) error {
+func (n *NoopNotifier) Notify(context.Context, string, string) error {
 	return nil
 }

@@ -2,11 +2,13 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"image/color"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	"charm.land/lipgloss/v2"
 )
@@ -23,6 +25,8 @@ func PrintLogo() {
 
 	var logoPath string
 	for _, p := range possiblePaths {
+		// Fixed asset paths shipped with the binary, not user input.
+		//nolint:gosec // G703: paths come from the list above
 		if _, err := os.Stat(p); err == nil {
 			logoPath = p
 			break
@@ -33,7 +37,12 @@ func PrintLogo() {
 		return
 	}
 
-	cmd := exec.Command("chafa", "-s", "30x20", logoPath)
+	// A hung chafa must not freeze the CLI over a decorative logo.
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	//nolint:gosec // G702: logoPath is one of the fixed paths above
+	cmd := exec.CommandContext(ctx, "chafa", "-s", "30x20", logoPath)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	_ = cmd.Run()

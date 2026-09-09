@@ -14,7 +14,7 @@ func TestNewPlayer(t *testing.T) {
 	tempDir := t.TempDir()
 	fakeExecutable := filepath.Join(tempDir, "mpv")
 
-	err := os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho fake mpv"), 0755)
+	err := os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho fake mpv"), 0o755)
 	require.NoError(t, err)
 
 	t.Setenv("PATH", tempDir+string(filepath.ListSeparator)+os.Getenv("PATH"))
@@ -36,7 +36,7 @@ func TestIsAvailable(t *testing.T) {
 	tempDir := t.TempDir()
 	fakeExecutable := filepath.Join(tempDir, "vlc")
 
-	require.NoError(t, os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho fake vlc"), 0755))
+	require.NoError(t, os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho fake vlc"), 0o755))
 
 	t.Setenv("PATH", tempDir+string(filepath.ListSeparator)+os.Getenv("PATH"))
 
@@ -50,7 +50,7 @@ func TestGetAvailablePlayers(t *testing.T) {
 	players := []string{"mpv", "vlc"}
 	for _, p := range players {
 		exe := filepath.Join(tempDir, p)
-		require.NoError(t, os.WriteFile(exe, []byte("fake"), 0755))
+		require.NoError(t, os.WriteFile(exe, []byte("fake"), 0o755))
 	}
 
 	t.Setenv("PATH", tempDir+string(filepath.ListSeparator)+os.Getenv("PATH"))
@@ -100,7 +100,7 @@ func TestGetDefaultArgs(t *testing.T) {
 func TestPlayer_SetArgs(t *testing.T) {
 	tempDir := t.TempDir()
 	fakeExecutable := filepath.Join(tempDir, "mpv")
-	require.NoError(t, os.WriteFile(fakeExecutable, []byte("fake"), 0755))
+	require.NoError(t, os.WriteFile(fakeExecutable, []byte("fake"), 0o755))
 
 	t.Setenv("PATH", tempDir+string(filepath.ListSeparator)+os.Getenv("PATH"))
 
@@ -114,7 +114,7 @@ func TestPlayer_SetArgs(t *testing.T) {
 func TestPlayer_AddArgs(t *testing.T) {
 	tempDir := t.TempDir()
 	fakeExecutable := filepath.Join(tempDir, "mpv")
-	require.NoError(t, os.WriteFile(fakeExecutable, []byte("fake"), 0755))
+	require.NoError(t, os.WriteFile(fakeExecutable, []byte("fake"), 0o755))
 
 	t.Setenv("PATH", tempDir+string(filepath.ListSeparator)+os.Getenv("PATH"))
 
@@ -128,7 +128,7 @@ func TestFindExecutable(t *testing.T) {
 	tempDir := t.TempDir()
 	fakeExecutable := filepath.Join(tempDir, "testplayer")
 
-	err := os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho test"), 0755)
+	err := os.WriteFile(fakeExecutable, []byte("#!/bin/sh\necho test"), 0o755)
 	require.NoError(t, err)
 
 	t.Setenv("PATH", tempDir+string(filepath.ListSeparator)+os.Getenv("PATH"))

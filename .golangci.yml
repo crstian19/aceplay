@@ -1,0 +1,63 @@
+version: "2"
+
+# errcheck, govet, ineffassign, staticcheck and unused are enabled by default
+# in v2 — everything below is what we add on top.
+linters:
+  enable:
+    # Correctness
+    - bodyclose # HTTP response bodies that are never closed
+    - copyloopvar # leftover loop-variable copies (pre-1.22 idiom)
+    - errorlint # %v instead of %w, comparisons instead of errors.Is
+    - nilerr # returning nil when err is non-nil
+    - noctx # HTTP requests sent without a context
+    - rowserrcheck # sql.Rows errors left unchecked
+    - sqlclosecheck # sql.Rows/Stmt left open
+    # Security
+    - gosec
+    # Style and simplification
+    - gocritic
+    - misspell
+    - revive
+    - unconvert
+    - unparam
+    - wastedassign
+    # Performance
+    - prealloc
+
+  settings:
+    revive:
+      rules:
+        - name: exported
+          arguments:
+            - checkPrivateReceivers
+            - sayRepetitiveInsteadOfStutters
+    gosec:
+      excludes:
+        # Launching the engine and the media player from user configuration is
+        # what this CLI does; the command comes from the user's own config file.
+        - G204
+
+  exclusions:
+    rules:
+      # Doc comments are required on the public API (pkg/), where they end up in
+      # pkg.go.dev; inside internal/ they would just restate the name.
+      - path: internal/
+        text: should have comment or be unexported
+        linters:
+          - revive
+      # Tests build fixtures and probe local servers on purpose.
+      - path: _test\.go
+        linters:
+          - gosec
+          - unparam
+
+formatters:
+  enable:
+    - gofumpt # stricter gofmt
+    - gci # deterministic import grouping
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/crstian19/aceplay)

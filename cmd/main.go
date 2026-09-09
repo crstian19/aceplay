@@ -14,12 +14,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/crstian19/aceplay/internal/acestream"
 	"github.com/crstian19/aceplay/internal/config"
+	"github.com/crstian19/aceplay/internal/engine"
 	notify "github.com/crstian19/aceplay/internal/notify"
 	"github.com/crstian19/aceplay/internal/player"
 	"github.com/crstian19/aceplay/internal/ui"
-	aceurl "github.com/crstian19/aceplay/pkg/acestream"
+	"github.com/crstian19/aceplay/pkg/acestream"
 )
 
 var (
@@ -164,7 +164,7 @@ func runPlay(cmd *cobra.Command, args []string) error {
 
 	logger.Info("Parsing Ace Stream URL", "url", urlStr)
 
-	aceURL, err := aceurl.ParseURL(urlStr)
+	aceURL, err := acestream.ParseURL(urlStr)
 	if err != nil {
 		return fmt.Errorf("invalid URL: %w", err)
 	}
@@ -205,16 +205,22 @@ func runPlay(cmd *cobra.Command, args []string) error {
 		acestream.WithPort(enginePort),
 		acestream.WithTimeout(timeout),
 		acestream.WithConnectTimeout(5*time.Second),
-		acestream.WithAutoStart("acestreamengine"),
 	)
-
-	if err := acestreamClient.StartEngine(); err != nil {
-		return fmt.Errorf("failed to start engine: %w", err)
-	}
-	defer func() { _ = acestreamClient.StopEngine() }()
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
+
+	engineManager := engine.New("", true)
+
+	enginePort, err = engineManager.Start(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to start engine: %w", err)
+	}
+	defer func() { _ = engineManager.Stop() }()
+
+	// An engine that was already running may listen on another port
+	acestreamClient.SetPort(enginePort)
+	logger.Info("Engine ready", "port", enginePort)
 
 	logger.Info("Waiting for stream to be ready...")
 	streamURL, err := acestreamClient.WaitForStream(ctx, aceURL.ContentID)
@@ -226,7 +232,7 @@ func runPlay(cmd *cobra.Command, args []string) error {
 
 	notifier := notify.GetNotifier()
 	if notifier.IsAvailable() {
-		_ = notifier.Notify("Aceplay", "Playing stream: "+aceURL.ContentID)
+		_ = notifier.Notify(ctx, "Aceplay", "Playing stream: "+aceURL.ContentID)
 	}
 
 	fmt.Println()
@@ -246,7 +252,7 @@ func runPlay(cmd *cobra.Command, args []string) error {
 			case <-statsCtx.Done():
 				return
 			case <-ticker.C:
-				stats, err := acestreamClient.GetStats(aceURL.ContentID)
+				stats, err := acestreamClient.GetStats(statsCtx, aceURL.ContentID)
 				if err != nil {
 					continue
 				}
@@ -456,21 +462,25 @@ var installCmd = &cobra.Command{
 
 This is the recommended way to set up aceplay for browser integration.
 It creates the necessary desktop entry and registers the protocol.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return runRegisterProtocol(cmd, args)
-	},
+	RunE: runRegisterProtocol,
 }
 
-func runRegisterProtocol(cmd *cobra.Command, args []string) error {
+func runRegisterProtocol(cmd *cobra.Command, _ []string) error {
 	execPath, err := os.Executable()
 	if err != nil {
 		return fmt.Errorf("failed to get executable path: %w", err)
 	}
 
-	return registerLinux(execPath)
+	// The --install flag calls this without a cobra command
+	ctx := context.Background()
+	if cmd != nil {
+		ctx = cmd.Context()
+	}
+
+	return registerLinux(ctx, execPath)
 }
 
-func registerLinux(execPath string) error {
+func registerLinux(ctx context.Context, execPath string) error {
 	desktopFile := fmt.Sprintf(`[Desktop Entry]
 Name=Aceplay
 Exec=%s play %%u
@@ -486,18 +496,22 @@ Categories=Network;Video;
 	}
 
 	desktopDir := filepath.Join(xdgDataHome, "applications")
-	if err := os.MkdirAll(desktopDir, 0755); err != nil {
+	//nolint:gosec // G703: the path is the caller's own XDG data home
+	if err := os.MkdirAll(desktopDir, 0o750); err != nil {
 		return fmt.Errorf("failed to create desktop directory: %w", err)
 	}
 
 	desktopPath := filepath.Join(desktopDir, "aceplay.desktop")
-	if err := os.WriteFile(desktopPath, []byte(desktopFile), 0755); err != nil {
+	// A .desktop file is data, not a program, and stays readable for the
+	// desktop environment that has to parse it.
+	//nolint:gosec // G306: 0644 is the expected mode for a .desktop entry
+	if err := os.WriteFile(desktopPath, []byte(desktopFile), 0o644); err != nil {
 		return fmt.Errorf("failed to write desktop file: %w", err)
 	}
 
 	fmt.Println(styles.Info.Render("ℹ Running xdg-mime to register protocol handler..."))
 
-	if err := runCmd("xdg-mime", "default", "aceplay.desktop", "x-scheme-handler/acestream"); err != nil {
+	if err := runCmd(ctx, "xdg-mime", "default", "aceplay.desktop", "x-scheme-handler/acestream"); err != nil {
 		return fmt.Errorf("failed to register protocol: %w", err)
 	}
 
@@ -507,8 +521,8 @@ Categories=Network;Video;
 	return nil
 }
 
-func runCmd(name string, args ...string) error {
-	cmd := exec.Command(name, args...)
+func runCmd(ctx context.Context, name string, args ...string) error {
+	cmd := exec.CommandContext(ctx, name, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()

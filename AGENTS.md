@@ -46,7 +46,7 @@ make test
 go test -v -race ./...
 
 # Run a single test
-go test -v -run TestFunctionName ./internal/acestream
+go test -v -run TestFunctionName ./pkg/acestream
 
 # Run tests in specific package
 go test -v ./internal/config/...
@@ -62,24 +62,28 @@ go tool cover -html=coverage.out -o coverage.html
 
 ### Linting and Code Quality
 
+The linter set lives in `.golangci.yml` (golangci-lint v2). CI runs exactly the same
+config, so a clean `make lint` means a green pipeline.
+
 ```bash
-# Format code
+# Format code (gofumpt + gci, same as CI checks)
 make fmt
-# or
-go fmt ./...
 
-# Run go vet
-make vet
+# Fail if anything is unformatted — this is what CI runs
+make fmt-check
 # or
-go vet ./...
+golangci-lint fmt --diff
 
-# Run linter (requires golangci-lint)
+# Run the linters (govet/staticcheck/gosec/revive/... per .golangci.yml)
 make lint
 # Install: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh
 
 # Run all checks (fmt, vet, lint, test)
 make check
 ```
+
+> Do not "fix" lint by running `go fmt ./...` in CI: it rewrites files and always exits 0,
+> so it can never fail a build. Use `golangci-lint fmt --diff`.
 
 ### Development
 
@@ -132,7 +136,7 @@ import (
 )
 ```
 
-Use `go fmt` or organize imports automatically.
+Import grouping is enforced by `gci` (standard / third-party / `github.com/crstian19/aceplay`); run `make fmt` instead of sorting by hand.
 
 ### Naming Conventions
 
