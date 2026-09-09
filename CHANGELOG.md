@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.4] - 2026-09-09
+
+### Changed
+- Updated charm.land/lipgloss/v2 to v2.0.6
+- Updated charm.land/log/v2 to v2.0.1
+- Updated stretchr/testify to v1.12.1
+- Updated Go toolchain to 1.27 in CI workflows
+- Updated actions/checkout to v7 and actions/setup-go to v7
+
 ## [0.4.3] - 2026-07-04
 
 ### Changed
