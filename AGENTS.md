@@ -295,43 +295,24 @@ aceplay/
 
 ## Releasing a New Version
 
-### Prerequisites
+Releases are automated with [releaser-pleaser](https://github.com/apricote/releaser-pleaser).
+It keeps a release PR open with the next version and the `CHANGELOG.md` entry, computed
+from the Conventional Commits on `main`:
 
-1. Ensure all changes are committed on `main`
-2. All tests pass: `make test`
-3. Build works: `make build`
+- `feat` bumps the minor, `fix` the patch, `!` (or `BREAKING CHANGE:`) the major.
+- `chore`, `ci`, `docs`, `refactor` and `test` do not cut a release on their own.
+- Renovate commits dependency, Go toolchain and security updates as `fix(deps)`, so they
+  ship in the next patch release; tooling and CI updates are `chore(deps)`.
 
-### Steps
+To release, merge the release PR. That tags `vX.Y.Z` and creates the GitHub release, and
+the tag runs GoReleaser (binaries, `.deb`/`.rpm`) and the AUR workflow.
 
-1. **Update CHANGELOG.md** with the new version:
-   ```bash
-   # Add new section at the top (after the header comments)
-   ## [X.Y.Z] - YYYY-MM-DD
-   
-   ### Changed
-   - ...
-   
-   ### Fixed
-   - ...
-   ```
+Do not edit `CHANGELOG.md` or push `v*` tags by hand. To change what the release notes say,
+edit the release PR description as releaser-pleaser explains in it.
 
-2. **Commit the changelog:**
-   ```bash
-   git add CHANGELOG.md
-   git commit -m "docs: update changelog for vX.Y.Z"
-   ```
-
-3. **Create and push the tag:**
-   ```bash
-   git tag -a vX.Y.Z -m "Release vX.Y.Z"
-   git push origin main
-   git push origin vX.Y.Z
-   ```
-
-4. **Monitor the release workflow:**
-   - GoReleaser creates the GitHub release with binaries
-   - AUR workflow publishes to Arch Linux AUR
-   - Check: https://github.com/crstian19/aceplay/actions
+The workflow authenticates as the `crstian19-releaser` GitHub App (secrets
+`RELEASER_APP_CLIENT_ID` and `RELEASER_APP_PRIVATE_KEY`): a tag pushed with `GITHUB_TOKEN`
+would not trigger the release workflows.
 
 ### Updating Charm Ecosystem Dependencies (Major Versions)
 
