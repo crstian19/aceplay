@@ -1,6 +1,21 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "github>crstian19/.github:renovate-config"
+    "github>crstian19/.github:renovate-config",
+    ":semanticCommits"
+  ],
+  "packageRules": [
+    {
+      "description": "Go toolchain and indirect (security) updates change the shipped binary, so they are fixes and cut a patch release. Direct dependencies are already fix(deps); tooling and CI stay chore.",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchDepTypes": [
+        "golang",
+        "toolchain",
+        "indirect"
+      ],
+      "semanticCommitType": "fix"
+    }
   ]
 }

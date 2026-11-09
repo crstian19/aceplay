@@ -20,15 +20,17 @@ builds:
 checksum:
   algorithm: sha256
 
+# releaser-pleaser writes the release notes (and CHANGELOG.md) when it creates
+# the release, so GoReleaser only uploads the artifacts.
+changelog:
+  disable: true
+
 release:
   github:
     owner: crstian19
     name: aceplay
   draft: false
   prerelease: auto
-  footer: |
-    ## Changelog
-    See [CHANGELOG.md](https://github.com/crstian19/aceplay/blob/main/CHANGELOG.md) for full details.
   extra_files:
     - glob: CHANGELOG.md
 
