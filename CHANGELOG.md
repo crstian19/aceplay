@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.4.6](https://github.com/crstian19/aceplay/releases/tag/v0.4.6)
+
+[Compare to previous version](https://github.com/crstian19/aceplay/compare/v0.4.5...v0.4.6)
+
+### Bug Fixes
+
+- **deps**: update module charm.land/lipgloss/v2 to v2.1.0 (#32) ([908d195](https://github.com/crstian19/aceplay/commit/908d195ce142d9a28caaf79195c1a50a83558b27))
+
 ## [0.4.5] - 2026-11-08
 
 ### Security
